@@ -1,0 +1,306 @@
+name: Auto Cherry-Pick Bot
+
+on:
+  pull_request_target:
+    types: [closed, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  cherry-pick:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event.action == 'closed' && github.event.pull_request.merged == true) ||
+      (github.event.action == 'labeled')
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.ref }}
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Configure Git Identity
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install packaging
+
+    - name: Parse label and find target branch
+      id: find_target
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_MERGED: ${{ github.event.pull_request.merged }}
+        PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        PR_MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+        EVENT_ACTION: ${{ github.event.action }}
+        EVENT_LABEL: ${{ github.event.label.name }}
+      run: |
+        set -euo pipefail
+        
+        PR_DATA=$(gh pr view "$PR_NUMBER" --json merged,mergeCommit,author,labels || echo "{}")
+        PR_MERGED_STATUS=$(echo "$PR_DATA" | jq -r '.merged // false')
+        PR_AUTHOR_LOGIN=$(echo "$PR_DATA" | jq -r '.author.login // ""')
+        PR_MERGE_COMMIT_SHA=$(echo "$PR_DATA" | jq -r '.mergeCommit.oid // ""')
+        
+        if [ "$PR_MERGED_STATUS" != "true" ]; then
+          echo "PR #$PR_NUMBER is not merged, skipping..."
+          echo "skip=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        if [ -z "$PR_MERGE_COMMIT_SHA" ]; then
+          echo "Cannot find merge commit SHA"
+          echo "skip=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        echo "PR #$PR_NUMBER is merged with commit: $PR_MERGE_COMMIT_SHA"
+        echo "merge_commit=$PR_MERGE_COMMIT_SHA" >> $GITHUB_OUTPUT
+        echo "pr_author=$PR_AUTHOR_LOGIN" >> $GITHUB_OUTPUT
+        
+        HAS_CHERRY_PICKED=$(echo "$PR_DATA" | jq -r '.labels[] | select(.name == "cherry-picked") | .name' | head -1 || echo "")
+        if [ -n "$HAS_CHERRY_PICKED" ] && [ "$EVENT_ACTION" != "labeled" ]; then
+          echo "PR already has cherry-picked label, skipping..."
+          echo "skip=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        CHERRY_PICK_LABEL=""
+        
+        if [ "$EVENT_ACTION" == "labeled" ] && [ -n "$EVENT_LABEL" ]; then
+          if echo "$EVENT_LABEL" | grep -qiE "(?:to|backport[_-]?)(\d+)\.x"; then
+            CHERRY_PICK_LABEL="$EVENT_LABEL"
+            echo "Found cherry-pick label from event: $CHERRY_PICK_LABEL"
+          fi
+        fi
+        
+        if [ -z "$CHERRY_PICK_LABEL" ]; then
+          CHERRY_PICK_LABEL=$(echo "$PR_DATA" | python3 -c "
+          import sys, json, re
+          data = json.load(sys.stdin)
+          labels = data.get('labels', [])
+          for label in labels:
+              name = label.get('name', '')
+              match = re.search(r'(?:to|backport[_-]?)(\d+)\.x', name, re.IGNORECASE)
+              if match:
+                  print(name)
+                  sys.exit(0)
+          ")
+        fi
+        
+        if [ -z "$CHERRY_PICK_LABEL" ]; then
+          echo "No cherry-pick label found"
+          echo "skip=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        echo "Found cherry-pick label: $CHERRY_PICK_LABEL"
+        
+        MAJOR_VERSION=$(echo "$CHERRY_PICK_LABEL" | python3 -c "
+        import sys, re
+        label = sys.stdin.read().strip()
+        match = re.search(r'(\d+)\.x', label, re.IGNORECASE)
+        if match:
+            print(match.group(1))
+        ")
+        
+        if [ -z "$MAJOR_VERSION" ]; then
+          echo "Failed to extract major version from label: $CHERRY_PICK_LABEL"
+          echo "error=true" >> $GITHUB_OUTPUT
+          echo "error_msg=无法从标签中提取版本号" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        echo "Extracted major version: $MAJOR_VERSION"
+        
+        git fetch origin --prune
+        
+        MATCHING_BRANCHES=$(git branch -r | grep -E "origin/${MAJOR_VERSION}\.[0-9]+$" | sed 's|origin/||' | sort -u)
+        
+        if [ -z "$MATCHING_BRANCHES" ]; then
+          echo "No matching branches found for version $MAJOR_VERSION.x"
+          echo "error=true" >> $GITHUB_OUTPUT
+          echo "error_msg=未找到匹配 ${MAJOR_VERSION}.x 的分支" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        echo "Found matching branches:"
+        echo "$MATCHING_BRANCHES"
+        
+        TARGET_BRANCH=$(echo "$MATCHING_BRANCHES" | python3 -c "
+          from packaging import version
+          import sys
+          
+          branches = [line.strip() for line in sys.stdin if line.strip()]
+          if not branches:
+              sys.exit(1)
+          
+          sorted_branches = sorted(branches, key=lambda x: version.Version(x))
+        target = sorted_branches[-1]
+        print(target)
+        ")
+        
+        if [ -z "$TARGET_BRANCH" ]; then
+          echo "Failed to determine target branch"
+          echo "error=true" >> $GITHUB_OUTPUT
+          echo "error_msg=无法确定目标分支" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        echo "Target branch: $TARGET_BRANCH"
+        echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+        echo "skip=false" >> $GITHUB_OUTPUT
+
+    - name: Check if backport PR already exists
+      if: steps.find_target.outputs.skip != 'true' && steps.find_target.outputs.error != 'true'
+      id: check_existing
+      env:
+        TARGET_BRANCH: ${{ steps.find_target.outputs.target_branch }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        MERGE_COMMIT: ${{ steps.find_target.outputs.merge_commit }}
+      run: |
+        set -euo pipefail
+        
+        EXISTING_PR=$(gh pr list --base "$TARGET_BRANCH" --state open --json number,title,body --jq ".[] | select(.title | contains(\"#$PR_NUMBER\")) or select(.body | contains(\"#$PR_NUMBER\")) or select(.body | contains(\"$MERGE_COMMIT\")) | .number" | head -1 || echo "")
+        
+        if [ -n "$EXISTING_PR" ]; then
+          echo "Found existing backport PR: #$EXISTING_PR"
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "pr_number=$EXISTING_PR" >> $GITHUB_OUTPUT
+        else
+          echo "No existing backport PR found"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Perform cherry-pick
+      if: steps.find_target.outputs.skip != 'true' && steps.find_target.outputs.error != 'true' && steps.check_existing.outputs.exists != 'true'
+      id: cherry_pick
+      env:
+        TARGET_BRANCH: ${{ steps.find_target.outputs.target_branch }}
+        MERGE_COMMIT: ${{ steps.find_target.outputs.merge_commit }}
+      run: |
+        set -euo pipefail
+        
+        git checkout -b "backport-${{ github.event.pull_request.number }}-to-$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+        
+        PARENT_COUNT=$(git cat-file -p "$MERGE_COMMIT" | grep -c "^parent " || echo "0")
+        
+        echo "Merge commit $MERGE_COMMIT has $PARENT_COUNT parent(s)"
+        
+        if [ "$PARENT_COUNT" -gt 1 ]; then
+          echo "Detected Merge Commit, using -m 1"
+          if git cherry-pick -m 1 -s "$MERGE_COMMIT"; then
+            echo "Cherry-pick successful"
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "Cherry-pick failed with conflicts"
+            git cherry-pick --abort
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "error_type=conflict" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+        else
+          echo "Detected Squash Commit, using standard cherry-pick"
+          if git cherry-pick -s "$MERGE_COMMIT"; then
+            echo "Cherry-pick successful"
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "Cherry-pick failed with conflicts"
+            git cherry-pick --abort
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "error_type=conflict" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+        fi
+
+    - name: Push branch and create PR
+      if: steps.find_target.outputs.skip != 'true' && steps.find_target.outputs.error != 'true' && steps.check_existing.outputs.exists != 'true' && steps.cherry_pick.outputs.success == 'true'
+      id: create_pr
+      env:
+        TARGET_BRANCH: ${{ steps.find_target.outputs.target_branch }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        MERGE_COMMIT: ${{ steps.find_target.outputs.merge_commit }}
+      run: |
+        set -euo pipefail
+        
+        PR_INFO=$(gh pr view "$PR_NUMBER" --json title,url || echo "{}")
+        PR_TITLE=$(echo "$PR_INFO" | jq -r '.title // ""')
+        PR_URL=$(echo "$PR_INFO" | jq -r '.url // ""')
+        
+        if [ -z "$PR_TITLE" ]; then
+          PR_TITLE="PR #$PR_NUMBER"
+        fi
+        
+        BRANCH_NAME="backport-$PR_NUMBER-to-$TARGET_BRANCH"
+        
+        git push origin "$BRANCH_NAME"
+        
+        PR_BODY="Cherry-picked from #$PR_NUMBER
+
+        Original PR: $PR_URL
+        Merge commit: \`$MERGE_COMMIT\`
+
+        This PR was automatically created by the Auto Cherry-Pick Bot."
+        
+        NEW_PR=$(gh pr create \
+          --base "$TARGET_BRANCH" \
+          --head "$BRANCH_NAME" \
+          --title "Cherry-pick #$PR_NUMBER to $TARGET_BRANCH: $PR_TITLE" \
+          --body "$PR_BODY" || echo "")
+        
+        if [ -n "$NEW_PR" ]; then
+          echo "Created PR: $NEW_PR"
+          echo "pr_url=$NEW_PR" >> $GITHUB_OUTPUT
+        else
+          echo "Failed to create PR"
+          echo "pr_url=" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Comment on original PR
+      if: always() && steps.find_target.outputs.skip != 'true'
+      env:
+        TARGET_BRANCH: ${{ steps.find_target.outputs.target_branch }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_AUTHOR: ${{ steps.find_target.outputs.pr_author }}
+        NEW_PR_URL: ${{ steps.create_pr.outputs.pr_url }}
+        ERROR_MSG: ${{ steps.find_target.outputs.error_msg }}
+        ERROR_TYPE: ${{ steps.cherry_pick.outputs.error_type }}
+        EXISTS: ${{ steps.check_existing.outputs.exists }}
+        EXISTS_PR: ${{ steps.check_existing.outputs.pr_number }}
+        SUCCESS: ${{ steps.cherry_pick.outputs.success }}
+      run: |
+        set -euo pipefail
+        
+        if [ "$SUCCESS" == "true" ] && [ -n "$NEW_PR_URL" ]; then
+          gh pr comment "$PR_NUMBER" --body "✅ 已成功 Cherry-pick 到 \`$TARGET_BRANCH\`，新 PR 链接：$NEW_PR_URL"
+          gh pr edit "$PR_NUMBER" --add-label "cherry-picked" 2>/dev/null || true
+        elif [ "$ERROR_TYPE" == "conflict" ]; then
+          if [ -n "$PR_AUTHOR" ]; then
+            gh pr comment "$PR_NUMBER" --body "@$PR_AUTHOR ❌ 自动 Cherry-pick 到 \`$TARGET_BRANCH\` 失败，存在冲突，请手动操作。"
+          else
+            gh pr comment "$PR_NUMBER" --body "❌ 自动 Cherry-pick 到 \`$TARGET_BRANCH\` 失败，存在冲突，请手动操作。"
+          fi
+        elif [ -n "$ERROR_MSG" ]; then
+          if [ -n "$PR_AUTHOR" ]; then
+            gh pr comment "$PR_NUMBER" --body "@$PR_AUTHOR ❌ 自动 Cherry-pick 失败：$ERROR_MSG"
+          else
+            gh pr comment "$PR_NUMBER" --body "❌ 自动 Cherry-pick 失败：$ERROR_MSG"
+          fi
+        elif [ "$EXISTS" == "true" ]; then
+          gh pr comment "$PR_NUMBER" --body "⏭️ 跳过，目标分支 \`$TARGET_BRANCH\` 的 Backport PR 已存在：#$EXISTS_PR"
+        fi
+
