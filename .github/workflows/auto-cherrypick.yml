@@ -1,0 +1,204 @@
+name: Backport
+
+on:
+  pull_request_target:
+    types:
+      - closed
+      - labeled
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number'
+        required: true
+        type: string
+      target_branch:
+        description: 'Target branch'
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  auto-backport:
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check Restricted Paths
+        id: check_files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          CHANGED_FILES=$(gh pr view $PR_NUMBER --json files --jq '.files[].path')
+          
+          if echo "$CHANGED_FILES" | grep -q "^pymilvus/grpc_gen/"; then
+            echo "should_skip=true" >> $GITHUB_OUTPUT
+            gh pr comment $PR_NUMBER --body "⚠️ **Backport Skipped**
+            Hi @$PR_AUTHOR, this PR modifies \`pymilvus/grpc_gen/\`. Please backport manually."
+          else
+            echo "should_skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check Target Branch Existence
+        id: check_branch
+        if: steps.check_files.outputs.should_skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          LABELS=$(gh pr view $PR_NUMBER --json labels -q '.labels[].name' | grep '^backport-to-')
+          
+          if [ -z "$LABELS" ]; then
+             echo "should_skip=true" >> $GITHUB_OUTPUT
+             exit 0
+          fi
+
+          INVALID_BRANCHES=""
+          while IFS= read -r label; do
+            BRANCH_NAME=${label#backport-to-}
+            if ! git ls-remote --exit-code --heads origin "$BRANCH_NAME" > /dev/null; then
+               INVALID_BRANCHES="$INVALID_BRANCHES \`$BRANCH_NAME\`"
+            fi
+          done <<< "$LABELS"
+
+          if [ -n "$INVALID_BRANCHES" ]; then
+             echo "should_skip=true" >> $GITHUB_OUTPUT
+             gh pr comment $PR_NUMBER --body "❌ **Backport Failed (Configuration Error)**
+             Hi @$PR_AUTHOR, I cannot find the target branch(es): $INVALID_BRANCHES.
+             Please check your label spelling."
+          else
+             echo "should_skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Backport
+        id: backport_step
+        if: steps.check_files.outputs.should_skip != 'true' && steps.check_branch.outputs.should_skip != 'true'
+        uses: korthout/backport-action@v3
+        with:
+          label_pattern: '^backport-to-(.*)$'
+          pull_title: '[Backport ${target_branch}] ${pull_title}'
+          pull_description: 'Backport of #${pull_number} to `${target_branch}`.'
+          add_labels: 'backport'
+
+      - name: Label Original PR
+        if: steps.backport_step.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr edit $PR_NUMBER --add-label "backported"
+
+  manual-backport:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Execute Manual Backport
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+          ACTOR: ${{ github.actor }} 
+        run: |
+          TARGET_BRANCH=$(echo "$TARGET_BRANCH" | xargs)
+          
+          echo "Processing Manual Backport: PR #$PR_NUMBER -> $TARGET_BRANCH"
+
+          PR_DATA=$(gh pr view $PR_NUMBER --json mergeCommit,title,files,author,state --jq .)
+          MERGE_COMMIT=$(echo "$PR_DATA" | jq -r .mergeCommit.oid)
+          PR_TITLE=$(echo "$PR_DATA" | jq -r .title)
+          PR_AUTHOR=$(echo "$PR_DATA" | jq -r .author.login)
+          PR_STATE=$(echo "$PR_DATA" | jq -r .state)
+          CHANGED_FILES=$(echo "$PR_DATA" | jq -r .files[].path)
+
+          if [ "$PR_STATE" != "MERGED" ]; then
+            echo "::error::PR is not merged."
+            gh pr comment $PR_NUMBER --body "❌ **Manual Backport Failed**
+            PR #$PR_NUMBER is not merged yet. Please merge it first."
+            exit 1
+          fi
+
+          if echo "$CHANGED_FILES" | grep -q "^pymilvus/grpc_gen/"; then
+            echo "::error::Skipping. PR modifies pymilvus/grpc_gen/."
+            gh pr comment $PR_NUMBER --body "⚠️ **Manual Backport Skipped**
+            Hi @$PR_AUTHOR, this PR modifies \`pymilvus/grpc_gen/\`. Please backport manually."
+            exit 1
+          fi
+
+          if ! git ls-remote --exit-code --heads origin $TARGET_BRANCH; then
+             echo "::error::Target branch '$TARGET_BRANCH' does not exist."
+             gh pr comment $PR_NUMBER --body "❌ **Manual Backport Failed**
+             Target branch \`$TARGET_BRANCH\` does not exist. Please check the branch name."
+             exit 1
+          fi
+
+          NEW_BRANCH="backport-$PR_NUMBER-to-manual-$(date +%s)"
+          
+          git checkout -b $NEW_BRANCH origin/$TARGET_BRANCH
+
+          CP_ARGS="-s"
+          if git rev-parse -q --verify "$MERGE_COMMIT^2" >/dev/null; then
+            CP_ARGS="-s -m 1"
+          fi
+
+          if git cherry-pick $CP_ARGS $MERGE_COMMIT; then
+            git push origin $NEW_BRANCH
+            
+            NEW_PR_URL=$(gh pr create \
+              --base $TARGET_BRANCH \
+              --head $NEW_BRANCH \
+              --title "[Backport $TARGET_BRANCH] $PR_TITLE" \
+              --body "Manual backport of #$PR_NUMBER to \`$TARGET_BRANCH\`." \
+              --label "backport" \
+              --assignee $ACTOR)
+            
+            gh pr comment $PR_NUMBER --body "✅ **Manual Backport Success**
+            backported to \`$TARGET_BRANCH\` via manual trigger: $NEW_PR_URL"
+            
+            gh pr edit $PR_NUMBER --add-label "backported"
+          else
+            echo "::error::Cherry-pick failed due to conflicts."
+            git cherry-pick --abort || true
+            
+            gh pr comment $PR_NUMBER --body "❌ **Manual Backport Failed**
+            Hi @$PR_AUTHOR, I could not cherry-pick this to \`$TARGET_BRANCH\` due to **merge conflicts**.
+            
+            Please perform the backport locally:
+            \`\`\`bash
+            git checkout $TARGET_BRANCH
+            git pull
+            git cherry-pick -x $MERGE_COMMIT
+            # Resolve conflicts...
+            git push ...
+            \`\`\`"
+            exit 1
+          fi
