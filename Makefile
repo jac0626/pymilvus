@@ -14,6 +14,7 @@ coverage:
 	PYTHONPATH=`pwd` pytest --cov=pymilvus --cov-report=xml tests -x -v -rxXs
 
 
+
 example:
 	PYTHONPATH=`pwd` python examples/example.py
 
