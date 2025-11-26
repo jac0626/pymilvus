@@ -1,0 +1,119 @@
+name: Auto Cherry Pick (Dynamic Version)
+
+on:
+  pull_request_target:
+    types: [closed, labeled]
+
+jobs:
+  cherry_pick:
+    # 触发条件：
+    # 1. PR 必须已合并 (Merged)
+    # 2. 触发的 Label 必须符合 "... to N.x" 的格式
+    if: >
+      github.event.pull_request.merged == true &&
+      contains(github.event.label.name, '.x') &&
+      contains(github.event.label.name, 'need to cherry-pick')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Find Target Branch
+        id: find_branch
+        env:
+          LABEL_NAME: ${{ github.event.label.name }}
+        run: |
+          echo "Processing Label: $LABEL_NAME"
+
+          # --- 步骤 1: 从 Label 中提取主版本号 ---
+          # 逻辑：匹配 "to " 后面跟着数字，且紧接着 ".x"
+          # 例如：从 "PR | need to cherry-pick to 2.x" 中提取出 "2"
+          MAJOR_VER=$(echo "$LABEL_NAME" | grep -oP 'to \K[0-9]+(?=\.x)')
+
+          if [ -z "$MAJOR_VER" ]; then
+            echo "::error::Label 格式不匹配，无法提取主版本号 (期望格式如: ... to 2.x)"
+            exit 1
+          fi
+          echo "Identified Major Version: $MAJOR_VER"
+
+          # --- 步骤 2: 在远程分支中寻找该主版本下的最大子版本 ---
+          # 假设你的分支命名规范是: "2.0", "2.1" 或 "release/2.0", "release/2.1"
+          
+          # grep 说明:
+          #   -P "(^|/)${MAJOR_VER}\.[0-9]+$" 
+          #   匹配 "2.9" (开头就是2.数字) 或者 "release/2.9" (斜杠后是2.数字)
+          # sort -V: 版本号语义排序 (保证 2.10 > 2.9)
+          # tail -n 1: 取最大的一个
+          
+          TARGET_BRANCH=$(git ls-remote --heads origin | awk '{print $2}' | sed 's/refs\/heads\///' | grep -P "(^|/)${MAJOR_VER}\.[0-9]+$" | sort -V | tail -n 1)
+
+          if [ -z "$TARGET_BRANCH" ]; then
+            echo "::error::未找到匹配主版本 $MAJOR_VER.x 的任何分支！"
+            exit 1
+          fi
+
+          echo "Found latest target branch: $TARGET_BRANCH"
+          echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Cherry Pick & Create PR
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+          TARGET_BRANCH: ${{ steps.find_branch.outputs.target_branch }}
+        run: |
+          echo "Preparing to cherry-pick #$PR_NUMBER to $TARGET_BRANCH"
+          
+          NEW_BRANCH="backport-$PR_NUMBER-to-$TARGET_BRANCH"
+          
+          # 检查临时分支是否已存在
+          if git ls-remote --exit-code --heads origin $NEW_BRANCH; then
+             echo "::warning::分支 $NEW_BRANCH 已存在，跳过创建。"
+             exit 0
+          fi
+
+          # 切出目标分支并创建新分支
+          git checkout -b $NEW_BRANCH origin/$TARGET_BRANCH
+
+          # Cherry-pick
+          if git cherry-pick -m 1 $MERGE_COMMIT; then
+            git push origin $NEW_BRANCH
+            
+            # 创建 PR
+            gh pr create \
+              --base $TARGET_BRANCH \
+              --head $NEW_BRANCH \
+              --title "[CP] $PR_TITLE" \
+              --body "Cherry-pick of #$PR_NUMBER to \`$TARGET_BRANCH\`." \
+              --label "backport-pr"
+            
+            # 记录成功状态
+            echo "CP_SUCCESS=true" >> $GITHUB_ENV
+          else
+            echo "::error::Cherry-pick 遇到冲突，放弃操作。"
+            git cherry-pick --abort
+            gh pr comment $PR_NUMBER --body "❌ 尝试自动 Cherry-pick 到 \`$TARGET_BRANCH\` 失败 (存在冲突)。"
+            exit 1
+          fi
+
+      - name: Mark Original PR
+        # 只有当上面的 cherry-pick 成功后才执行
+        if: env.CP_SUCCESS == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr edit $PR_NUMBER --add-label "cherry-picked"
