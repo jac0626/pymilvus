@@ -5,6 +5,7 @@ lint:
 	PYTHONPATH=`pwd` python3 -m black pymilvus --check
 	PYTHONPATH=`pwd` python3 -m ruff check pymilvus
 
+
 format:
 	pip install -e ".[dev]"
 	PYTHONPATH=`pwd` python3 -m black pymilvus
