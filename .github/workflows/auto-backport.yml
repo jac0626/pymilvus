@@ -1,0 +1,123 @@
+name: Auto Cherry Pick
+
+on:
+  pull_request_target:
+    types: [closed, labeled]
+
+jobs:
+  cherry_pick:
+    if: >
+      github.event.pull_request.merged == true &&
+      contains(toJSON(github.event.pull_request.labels.*.name), 'need to cherry-pick')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Analyze Label & Find Target Branch
+        id: find_branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          ALL_LABELS=$(gh pr view $PR_NUMBER --json labels -q '.labels[].name')
+          TARGET_LABEL=$(echo "$ALL_LABELS" | grep -oP '.*to [0-9]+\.x.*' | head -n 1)
+
+          if [ -z "$TARGET_LABEL" ]; then
+            echo "::error::Target label format '... to N.x' not found."
+            gh pr comment $PR_NUMBER --body "❌ **Auto Cherry Pick Failed**
+            @$PR_AUTHOR could not find a label matching format \`... to N.x\`."
+            exit 1
+          fi
+
+          MAJOR_VER=$(echo "$TARGET_LABEL" | grep -oP 'to \K[0-9]+(?=\.x)')
+
+          if [ -z "$MAJOR_VER" ]; then
+            echo "::error::Could not extract major version."
+            exit 1
+          fi
+
+          TARGET_BRANCH=$(git ls-remote --heads origin | awk '{print $2}' | sed 's/refs\/heads\///' | grep -P "(^|/)${MAJOR_VER}\.[0-9]+$" | sort -V | tail -n 1)
+
+          if [ -z "$TARGET_BRANCH" ]; then
+            echo "::error::No matching branch found for version $MAJOR_VER.x"
+            gh pr comment $PR_NUMBER --body "❌ **Auto Cherry Pick Failed**
+            @$PR_AUTHOR no existing branch found matching version \`$MAJOR_VER.x\`."
+            exit 1
+          fi
+
+          echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+
+          DETECTED_VERSION=$(echo "$TARGET_BRANCH" | grep -oP '[0-9]+\.[0-9]+')
+          if [ -z "$DETECTED_VERSION" ]; then
+             DETECTED_VERSION="${MAJOR_VER}.x"
+          fi
+          echo "detected_version=$DETECTED_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Execute Cherry Pick
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+          TARGET_BRANCH: ${{ steps.find_branch.outputs.target_branch }}
+        run: |
+          NEW_BRANCH="backport-$PR_NUMBER-to-$TARGET_BRANCH"
+
+          if git ls-remote --exit-code --heads origin $NEW_BRANCH; then
+             gh pr comment $PR_NUMBER --body "⚠️ **Auto Cherry Pick Skipped**
+             Branch \`$NEW_BRANCH\` already exists."
+             exit 0
+          fi
+
+          git checkout -b $NEW_BRANCH origin/$TARGET_BRANCH
+
+          if git rev-parse -q --verify "$MERGE_COMMIT^2" >/dev/null; then
+            CP_ARGS="-s -m 1"
+          else
+            CP_ARGS="-s"
+          fi
+
+          if git cherry-pick $CP_ARGS $MERGE_COMMIT; then
+            git push origin $NEW_BRANCH
+
+            NEW_PR_URL=$(gh pr create \
+              --base $TARGET_BRANCH \
+              --head $NEW_BRANCH \
+              --title "[cherry_pick] $PR_TITLE" \
+              --body "Cherry-pick of #$PR_NUMBER to \`$TARGET_BRANCH\`.")
+
+            gh pr comment $PR_NUMBER --body "✅ **Auto Cherry Pick Success**
+            Cherry-picked to \`$TARGET_BRANCH\` in PR: $NEW_PR_URL"
+
+            echo "CP_SUCCESS=true" >> $GITHUB_ENV
+          else
+            git cherry-pick --abort || true
+            gh pr comment $PR_NUMBER --body "❌ **Auto Cherry Pick Failed**
+            Hi @$PR_AUTHOR, manual cherry-pick required due to conflicts."
+            exit 1
+          fi
+
+      - name: Label Original PR
+        if: env.CP_SUCCESS == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VERSION_TAG: ${{ steps.find_branch.outputs.detected_version }}
+        run: |
+          LABEL_NAME="cherry-picked-$VERSION_TAG"
+          gh pr edit $PR_NUMBER --add-label "$LABEL_NAME"
