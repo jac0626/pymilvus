@@ -1,0 +1,109 @@
+name: Auto Cherry Pick
+
+on:
+  pull_request_target:
+    types: [closed, labeled]
+
+jobs:
+  cherry_pick:
+    if: >
+      github.event.pull_request.merged == true &&
+      contains(toJSON(github.event.pull_request.labels.*.name), 'need to cherry-pick')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Find Target Branch
+        id: find_branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          ALL_LABELS=$(gh pr view $PR_NUMBER --json labels -q '.labels[].name')
+          
+          # Filter for label matching format '... to N.x'
+          TARGET_LABEL=$(echo "$ALL_LABELS" | grep -oP '.*to [0-9]+\.x.*' | head -n 1)
+
+          if [ -z "$TARGET_LABEL" ]; then
+            echo "::error::Target label format 'to N.x' not found in PR labels."
+            exit 1
+          fi
+          
+          echo "Processing Label: $TARGET_LABEL"
+
+          MAJOR_VER=$(echo "$TARGET_LABEL" | grep -oP 'to \K[0-9]+(?=\.x)')
+
+          if [ -z "$MAJOR_VER" ]; then
+            echo "::error::Could not extract major version from label."
+            exit 1
+          fi
+          echo "Identified Major Version: $MAJOR_VER"
+
+          # Find the latest branch matching the major version (e.g., 2.x -> release/2.10)
+          TARGET_BRANCH=$(git ls-remote --heads origin | awk '{print $2}' | sed 's/refs\/heads\///' | grep -P "(^|/)${MAJOR_VER}\.[0-9]+$" | sort -V | tail -n 1)
+
+          if [ -z "$TARGET_BRANCH" ]; then
+            echo "::error::No matching branch found for version $MAJOR_VER.x"
+            exit 1
+          fi
+
+          echo "Found latest target branch: $TARGET_BRANCH"
+          echo "target_branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Cherry Pick & Create PR
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+          TARGET_BRANCH: ${{ steps.find_branch.outputs.target_branch }}
+        run: |
+          echo "Preparing to cherry-pick #$PR_NUMBER to $TARGET_BRANCH"
+          
+          NEW_BRANCH="backport-$PR_NUMBER-to-$TARGET_BRANCH"
+          
+          if git ls-remote --exit-code --heads origin $NEW_BRANCH; then
+             echo "::warning::Branch $NEW_BRANCH already exists, skipping."
+             exit 0
+          fi
+
+          git checkout -b $NEW_BRANCH origin/$TARGET_BRANCH
+
+          if git cherry-pick -m 1 $MERGE_COMMIT; then
+            git push origin $NEW_BRANCH
+            
+            gh pr create \
+              --base $TARGET_BRANCH \
+              --head $NEW_BRANCH \
+              --title "[CP] $PR_TITLE" \
+              --body "Cherry-pick of #$PR_NUMBER to \`$TARGET_BRANCH\`." \
+              --label "backport-pr"
+            
+            echo "CP_SUCCESS=true" >> $GITHUB_ENV
+          else
+            echo "::error::Cherry-pick failed due to conflicts."
+            git cherry-pick --abort
+            gh pr comment $PR_NUMBER --body "❌ Auto Cherry-pick to \`$TARGET_BRANCH\` failed (conflict)."
+            exit 1
+          fi
+
+      - name: Mark Original PR
+        if: env.CP_SUCCESS == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr edit $PR_NUMBER --add-label "cherry-picked"
