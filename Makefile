@@ -1,6 +1,7 @@
 unittest:
 	PYTHONPATH=`pwd` python3 -m pytest tests --cov=pymilvus -v
 
+
 lint:
 	PYTHONPATH=`pwd` python3 -m black pymilvus --check
 	PYTHONPATH=`pwd` python3 -m ruff check pymilvus
