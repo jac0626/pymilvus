@@ -6,6 +6,8 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+
+
 class SegmentIndexData(_message.Message):
     __slots__ = ("segmentID", "index_data")
     SEGMENTID_FIELD_NUMBER: _ClassVar[int]
