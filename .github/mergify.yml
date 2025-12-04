@@ -42,3 +42,11 @@ pull_request_rules:
         add:
           - dco-passed
 
+  - name: Add backport-to-2.6 label on comment
+    conditions:
+      - base=master
+      - "comment~=(?m)^/backport-to-2\\.6\\s*$"
+    actions:
+      label:
+        add:
+          - backport-to-2.6
