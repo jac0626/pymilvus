@@ -234,7 +234,63 @@ class HybridHits(list):
     __repr__ = __str__
 
 
-class SearchResult(list):
+class BaseSearchResult(list):
+    """
+    Abstract base class for search results.
+    
+    Provides common attributes and methods shared by SearchResult and ColumnarSearchResult.
+    
+    Attributes:
+        recalls (List[float], optional): The recalls of the search result, one for each query.
+        extra (Dict, optional): The extra information of the search result (cost, cache_hit_ratio, etc.).
+    """
+    
+    recalls: Optional[List[float]]
+    extra: Dict[str, Any]
+    _session_ts: int
+    _search_iterator_v2_results: Any
+    
+    def _init_common_attributes(
+        self,
+        res: schema_pb2.SearchResultData,
+        status: Optional[common_pb2.Status] = None,
+        session_ts: Optional[int] = 0,
+    ):
+        """Initialize common attributes from response data."""
+        # Set recalls
+        self.recalls = list(res.recalls) if len(res.recalls) > 0 else None
+        
+        # Set extra info
+        self.extra = {}
+        if status and hasattr(status, 'extra_info') and status.extra_info:
+            if "report_value" in status.extra_info:
+                self.extra["cost"] = int(status.extra_info["report_value"])
+            if "scanned_remote_bytes" in status.extra_info:
+                self.extra["scanned_remote_bytes"] = int(status.extra_info["scanned_remote_bytes"])
+            if "scanned_total_bytes" in status.extra_info:
+                self.extra["scanned_total_bytes"] = int(status.extra_info["scanned_total_bytes"])
+            if "cache_hit_ratio" in status.extra_info:
+                self.extra["cache_hit_ratio"] = float(status.extra_info["cache_hit_ratio"])
+        
+        # Iterator related
+        self._session_ts = session_ts
+        self._search_iterator_v2_results = res.search_iterator_v2_results
+
+    def __str__(self) -> str:
+        """Only print at most 10 results."""
+        result_msg = f"data: {self[:10]}"
+        
+        # Optional messages
+        recall_msg = f",recalls: {self.recalls[:10]}" if self.recalls else ""
+        extra_msg = f",{self.extra}" if self.extra else ""
+        reminder = f" ... and {len(self) - 10} results remaining" if len(self) > 10 else ""
+        
+        return f"{result_msg}{recall_msg}{reminder}{extra_msg}"
+    
+    __repr__ = __str__
+
+
+class SearchResult(BaseSearchResult):
     """A list[list[dict]] Contains nq * limit results.
 
     The first level is the results for each nq, and the second level
@@ -271,38 +327,9 @@ class SearchResult(list):
     ):
         _data = self._parse_search_result_data(res, round_decimal)
         super().__init__(_data)
-
-        # set recalls
-        self.recalls = res.recalls if len(res.recalls) > 0 else None
-
-        # set extra info
-        self.extra = {}
-        if status and status.extra_info:
-            if "report_value" in status.extra_info:
-                self.extra["cost"] = int(status.extra_info["report_value"])
-            if "scanned_remote_bytes" in status.extra_info:
-                self.extra["scanned_remote_bytes"] = int(status.extra_info["scanned_remote_bytes"])
-            if "scanned_total_bytes" in status.extra_info:
-                self.extra["scanned_total_bytes"] = int(status.extra_info["scanned_total_bytes"])
-            if "cache_hit_ratio" in status.extra_info:
-                self.extra["cache_hit_ratio"] = float(status.extra_info["cache_hit_ratio"])
-
-        # iterator related
-        self._session_ts = session_ts
-        self._search_iterator_v2_results = res.search_iterator_v2_results
-
-    def __str__(self) -> str:
-        """Only print at most 10 results"""
-        result_msg = f"data: {self[:10]}"
-
-        # Optional messages
-        recall_msg = f",recalls: {self.recalls[:10]}" if self.recalls else ""
-        extra_msg = f",{self.extra}" if self.extra else ""
-        reminder = f" ... and {len(self) - 10} results remaining" if len(self) > 10 else ""
-
-        return f"{result_msg}{recall_msg}{reminder}{extra_msg}"
-
-    __repr__ = __str__
+        
+        # Use base class method for common attributes
+        self._init_common_attributes(res, status, session_ts)
 
     def materialize(self):
         for i in range(len(self)):

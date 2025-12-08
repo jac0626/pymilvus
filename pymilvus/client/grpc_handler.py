@@ -50,6 +50,7 @@ from .embedding_list import EmbeddingList
 from .interceptor import _api_level_md
 from .prepare import Prepare
 from .search_result import SearchResult
+from .columnar_search_result import ColumnarSearchResult
 from .types import (
     AnalyzeResult,
     BulkInsertState,
@@ -962,12 +963,27 @@ class GrpcHandler:
             response = self._stub.Search(request, timeout=timeout, metadata=_api_level_md(**kwargs))
             check_status(response.status)
             round_decimal = kwargs.get("round_decimal", -1)
-            return SearchResult(
-                response.results,
-                round_decimal,
-                status=response.status,
-                session_ts=response.session_ts,
-            )
+            
+            # Support output_mode switch for different result formats
+            output_mode = kwargs.get("output_mode", "default")
+            if output_mode == "columnar":
+                # Phase 2: zero_copy_vectors enables np.frombuffer for bytes-based vectors
+                zero_copy_vectors = kwargs.get("zero_copy_vectors", True)
+                return ColumnarSearchResult(
+                    response.results,
+                    round_decimal,
+                    status=response.status,
+                    session_ts=response.session_ts,
+                    zero_copy_vectors=zero_copy_vectors,
+                )
+            else:
+                # Default: use original SearchResult for backward compatibility
+                return SearchResult(
+                    response.results,
+                    round_decimal,
+                    status=response.status,
+                    session_ts=response.session_ts,
+                )
         except Exception as e:
             if kwargs.get("_async", False):
                 return SearchFuture(None, None, e)
