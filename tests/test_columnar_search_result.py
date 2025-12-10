@@ -108,6 +108,85 @@ class TestColumnarHits:
         assert len(hits.ids) == 5
         assert len(hits.distances) == 5
         assert list(hits.ids) == [0, 1, 2, 3, 4]
+    
+    def test_columnar_hits_slice_access(self):
+        """Test slice access on ColumnarHits."""
+        result = _create_simple_search_result(nq=1, topk=10)
+        columnar = ColumnarSearchResult(result)
+        
+        hits = columnar[0]
+        sliced = hits[:3]
+        
+        assert len(sliced) == 3
+        assert all(isinstance(h, RowProxy) for h in sliced)
+        assert sliced[0].id == 0
+        assert sliced[1].id == 1
+        assert sliced[2].id == 2
+    
+    def test_columnar_hits_negative_index(self):
+        """Test negative indexing on ColumnarHits."""
+        result = _create_simple_search_result(nq=1, topk=5)
+        columnar = ColumnarSearchResult(result)
+        
+        hits = columnar[0]
+        assert hits[-1].id == 4
+        assert hits[-2].id == 3
+
+
+class TestRowProxyDictCompatibility:
+    """Tests for RowProxy dict-like compatibility methods."""
+    
+    def test_row_proxy_keys(self):
+        """Test RowProxy.keys() returns field names."""
+        result = _create_simple_search_result(nq=1, topk=5)
+        columnar = ColumnarSearchResult(result)
+        
+        hit = columnar[0][0]
+        keys = hit.keys()
+        
+        assert "count" in keys
+    
+    def test_row_proxy_values(self):
+        """Test RowProxy.values() returns field values."""
+        result = _create_simple_search_result(nq=1, topk=5)
+        columnar = ColumnarSearchResult(result)
+        
+        hit = columnar[0][0]
+        values = hit.values()
+        
+        assert isinstance(values, list)
+        assert 0 in values  # count field value
+    
+    def test_row_proxy_items(self):
+        """Test RowProxy.items() returns (field, value) pairs."""
+        result = _create_simple_search_result(nq=1, topk=5)
+        columnar = ColumnarSearchResult(result)
+        
+        hit = columnar[0][0]
+        items = hit.items()
+        
+        assert isinstance(items, list)
+        assert all(isinstance(item, tuple) for item in items)
+        assert ("count", 0) in items
+    
+    def test_row_proxy_contains(self):
+        """Test 'field in hit' syntax."""
+        result = _create_simple_search_result(nq=1, topk=5)
+        columnar = ColumnarSearchResult(result)
+        
+        hit = columnar[0][0]
+        assert "count" in hit
+        assert "nonexistent" not in hit
+    
+    def test_row_proxy_iter(self):
+        """Test iterating over RowProxy yields field names."""
+        result = _create_simple_search_result(nq=1, topk=5)
+        columnar = ColumnarSearchResult(result)
+        
+        hit = columnar[0][0]
+        field_names = list(hit)
+        
+        assert "count" in field_names
 
 
 class TestColumnarSearchResultDataTypes:
@@ -380,6 +459,90 @@ class TestColumnarSearchResultDataTypes:
                 orig_val = original[q][i].entity.get("varchar_array_field")
                 col_val = columnar[q][i]["varchar_array_field"]
                 assert orig_val == col_val, f"varchar_array_field mismatch at q={q}, i={i}"
+    
+    def test_geometry_type(self):
+        """Test GEOMETRY data type parsing (WKT strings stored as bytes)."""
+        wkt_data = [
+            b"POINT(1.0 2.0)",
+            b"POINT(3.0 4.0)",
+            b"LINESTRING(0 0, 1 1)",
+            b"POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
+            b"POINT(5.0 6.0)",
+            b"POINT(7.0 8.0)",
+        ]
+        
+        fields_data = [
+            schema_pb2.FieldData(
+                type=DataType.GEOMETRY, 
+                field_name="geometry_field",
+                scalars=schema_pb2.ScalarField(
+                    geometry_wkt_data=schema_pb2.GeometryWktArray(data=wkt_data)
+                )
+            ),
+        ]
+        
+        ids = schema_pb2.IDs(int_id=schema_pb2.LongArray(data=list(range(6))))
+        
+        result = schema_pb2.SearchResultData(
+            fields_data=fields_data,
+            num_queries=2,
+            top_k=3,
+            scores=[1.*i for i in range(6)],
+            ids=ids,
+            topks=[3, 3],
+            output_fields=["geometry_field"]
+        )
+        
+        original = SearchResult(result)
+        columnar = ColumnarSearchResult(result)
+        
+        for q in range(2):
+            for i in range(3):
+                orig_val = original[q][i].entity.get("geometry_field")
+                col_val = columnar[q][i]["geometry_field"]
+                assert orig_val == col_val, f"geometry_field mismatch at q={q}, i={i}"
+    
+    def test_timestamptz_type(self):
+        """Test TIMESTAMPTZ data type parsing (stored as strings)."""
+        timestamp_data = [
+            "2024-01-01T00:00:00Z",
+            "2024-01-02T00:00:00Z",
+            "2024-01-03T00:00:00Z",
+            "2024-01-04T00:00:00Z",
+            "2024-01-05T00:00:00Z",
+            "2024-01-06T00:00:00Z",
+        ]
+        
+        fields_data = [
+            schema_pb2.FieldData(
+                type=DataType.TIMESTAMPTZ, 
+                field_name="timestamp_field",
+                scalars=schema_pb2.ScalarField(
+                    string_data=schema_pb2.StringArray(data=timestamp_data)
+                )
+            ),
+        ]
+        
+        ids = schema_pb2.IDs(int_id=schema_pb2.LongArray(data=list(range(6))))
+        
+        result = schema_pb2.SearchResultData(
+            fields_data=fields_data,
+            num_queries=2,
+            top_k=3,
+            scores=[1.*i for i in range(6)],
+            ids=ids,
+            topks=[3, 3],
+            output_fields=["timestamp_field"]
+        )
+        
+        original = SearchResult(result)
+        columnar = ColumnarSearchResult(result)
+        
+        for q in range(2):
+            for i in range(3):
+                orig_val = original[q][i].entity.get("timestamp_field")
+                col_val = columnar[q][i]["timestamp_field"]
+                assert orig_val == col_val, f"timestamp_field mismatch at q={q}, i={i}"
 
 
 class TestColumnarVsOriginalConsistency:

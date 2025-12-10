@@ -1,0 +1,823 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="648"
+     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style type="text/css">
+    .func_g:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+</style>
+<svg class="func_g" x="0.0" y="288" width="1198.9996272890608" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 100.00% (1 1 5.8926000000000005e-05 2.50488948)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 215, 125)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="264" width="1198.971398028408" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 100.00% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 240, 141)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="240" width="1184.441854195594" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 98.79% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 190, 110)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="216" width="88.15272151615353" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:120:__iter__ 7.43% (30 30 0.00025490800000000003 0.18609815300000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 240, 141)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__iter__</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="192" width="88.03060454954269" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:124:materialize 7.42% (30 30 0.12449032600000001 0.18584324500000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 140, 79)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">materialize</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="168" width="25.69615780029913" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:116:get_raw_item 2.22% (30000 30000 0.053496166000000005 0.055725788000000005)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">get_raw_item</text>
+</g></svg>
+<svg class="func_g" x="26.8903545713738" y="168" width="1.4933336620450057" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:773:__getitem__ 0.21% (30000 30000 0.0052046060000000005 0.0052046060000000005)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 190, 110)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__getitem__</text>
+</g></svg>
+<svg class="func_g" x="89.15272151615353" y="216" width="1068.300678001998" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 89.11% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 90, 49)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="89.16036927634535" y="192" width="1068.2818853224185" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 89.11% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 140, 79)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="89.16036927634535" y="168" width="1067.076747017314" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 89.01% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 240, 141)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="89.37766598156493" y="144" width="907.0135704691617" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 75.67% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 140, 79)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="89.37766598156493" y="120" width="768.5283236635909" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 64.13% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="89.37766598156493" y="96" width="676.791173716162" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 56.48% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 90, 49)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="89.37766598156493" y="72" width="604.2337971925634" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 50.44% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 90, 49)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="89.37766598156493" y="48" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1128:__setitem__ 6.74% (900000 900000 0.168814455 0.168814455)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__setitem__</text>
+</g></svg>
+<svg class="func_g" x="170.25040895025109" y="48" width="325.04952563953793" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.isinstance&gt; 27.17% (300000 300000 0.5680026020000001 0.680598567)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.isinstance&gt;</text>
+</g></svg>
+<svg class="func_g" x="170.25040895025109" y="24" width="52.94054991769618" height="23"><g>
+    <title>&lt;frozen abc&gt;:117:__instancecheck__ 4.50% (300000 300000 0.06185876499999995 0.11259596499999991)</title>
+    <rect height="100%" width="100%" fill="rgb(44, 255, 210)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__instancecheck__</text>
+</g></svg>
+<svg class="func_g" x="170.25040895025109" y="0" width="23.30631034854699" height="23"><g>
+    <title>~:0:&lt;built-in method _abc._abc_instancecheck&gt; 2.03% (300000 300000 0.05072486199999996 0.05073719999999996)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method _abc._abc_instancecheck&gt;</text>
+</g></svg>
+<svg class="func_g" x="496.299934589789" y="48" width="11.204120760327536" height="23"><g>
+    <title>~:0:&lt;method 'items' of 'dict' objects&gt; 1.02% (300000 300000 0.025474986 0.025474986)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 215, 125)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;method 'items' of 'dict' objects&gt;</text>
+</g></svg>
+<svg class="func_g" x="997.3912364507268" y="144" width="141.16976223315245" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:72:&lt;listcomp&gt; 11.85% (300 300 0.249851076 0.296766377)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="997.3912364507268" y="120" width="21.475380316641395" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:773:__getitem__ 1.87% (300000 300000 0.046915301 0.046915301)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 190, 110)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__getitem__</text>
+</g></svg>
+<svg class="func_g" x="1139.560998683879" y="144" width="1.2136658411643673" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:560:get_field_data 0.18% (600 600 0.004620825 0.004620825)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">get_field_data</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="336" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 90, 49)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="360" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="384" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="408" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="432" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="456" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="480" width="71.55737652359858" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="504" width="71.55737652359858" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="0.0" y="528" width="71.55737652359858" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="336" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1128:__setitem__ 6.74% (900000 900000 0.168814455 0.168814455)</title>
+    <rect height="100%" width="100%" fill="rgb(182, 182, 255)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__setitem__</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="360" width="79.87274296868615" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 6.74% (900000 900000 0.168814455 0.168814455)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="384" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="408" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="432" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="456" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="480" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="504" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="528" width="79.87274296868615" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="552" width="79.87274296868615" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="72.55737652359858" y="576" width="79.87274296868617" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="153.43011949228475" y="336" width="25.623174962262155" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 190, 110)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="153.43011949228475" y="360" width="25.623174962262155" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="153.43011949228475" y="384" width="25.623174962262155" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="180.0532944545469" y="336" width="14.309668069298706" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 240, 141)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="180.0532944545469" y="360" width="14.309668069298706" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="180.0532944545469" y="384" width="14.309668069298706" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="180.0532944545469" y="408" width="14.309668069298706" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="180.0532944545469" y="432" width="14.309668069298706" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="180.0532944545469" y="456" width="14.309668069298706" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="336" width="137.48524680557082" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 140, 79)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="360" width="137.48524680557082" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="384" width="137.48524680557082" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="408" width="137.48524680557082" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="432" width="137.48524680557082" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="456" width="137.48524680557082" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="195.58025922906518" y="480" width="137.48524680557082" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="336" width="118.69438191651108" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:72:&lt;listcomp&gt; 9.97% (300 300 0.249851076 0.296766377)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="360" width="118.69438191651108" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 9.97% (300 300 0.249851076 0.296766377)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="384" width="118.69438191651108" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="408" width="118.69438191651108" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="432" width="118.69438191651108" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="456" width="118.69438191651108" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="334.06550603463603" y="480" width="118.69438191651105" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="453.75988795114705" y="336" width="24.628028611223893" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:116:get_raw_item 2.14% (30000 30000 0.053496166000000005 0.055725788000000005)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">get_raw_item</text>
+</g></svg>
+<svg class="func_g" x="453.75988795114705" y="360" width="24.628028611223893" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:124:materialize 2.14% (30000 30000 0.053496166000000005 0.055725788000000005)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">materialize</text>
+</g></svg>
+<svg class="func_g" x="453.75988795114705" y="384" width="24.628028611223893" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:120:__iter__ 4.97% (30 30 0.12449032600000001 0.18584324500000002)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__iter__</text>
+</g></svg>
+<svg class="func_g" x="453.75988795114705" y="408" width="24.628028611223886" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.01% (30 30 0.00025490800000000003 0.18609815300000002)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="453.75988795114705" y="432" width="24.628028611223886" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="453.75988795114705" y="456" width="24.628028611223883" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="479.51003352898186" y="336" width="58.63869703388817" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:124:materialize 4.97% (30 30 0.12449032600000001 0.18584324500000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 140, 79)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">materialize</text>
+</g></svg>
+<svg class="func_g" x="479.51003352898186" y="360" width="58.63869703388817" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:120:__iter__ 4.97% (30 30 0.12449032600000001 0.18584324500000002)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__iter__</text>
+</g></svg>
+<svg class="func_g" x="479.51003352898186" y="384" width="58.63869703388817" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.01% (30 30 0.00025490800000000003 0.18609815300000002)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="479.51003352898186" y="408" width="58.63869703388817" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="479.51003352898186" y="432" width="58.63869703388817" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="336" width="1.4078626122390383" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:560:get_field_data 0.20% (630 630 0.005026193 0.005026193)</title>
+    <rect height="100%" width="100%" fill="rgb(182, 182, 255)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">get_field_data</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="360" width="1.2136658411643673" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 0.18% (600 600 0.004620825 0.004620825)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="384" width="1.2136658411643673" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="408" width="1.2136658411643673" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="432" width="1.2136658411643673" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="456" width="1.2136658411643673" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="540.340243839936" y="480" width="1.2136658411643673" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="336" width="90.73714994742895" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="360" width="90.73714994742895" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="384" width="90.73714994742895" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="408" width="90.73714994742893" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="432" width="90.73714994742893" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="456" width="90.73714994742893" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="480" width="90.73714994742893" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="542.748106452175" y="504" width="90.73714994742893" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="336" width="24.1088508964132" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:773:__getitem__ 2.09% (330300 330300 0.05241243 0.05241243)</title>
+    <rect height="100%" width="100%" fill="rgb(214, 214, 255)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__getitem__</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="360" width="21.475380316641395" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:72:&lt;listcomp&gt; 1.87% (300000 300000 0.046915301 0.046915301)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="384" width="21.475380316641395" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 9.97% (300 300 0.249851076 0.296766377)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="408" width="21.475380316641395" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="432" width="21.475380316641395" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="456" width="21.4753803166414" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="480" width="21.4753803166414" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="634.622834642363" y="504" width="21.4753803166414" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="657.0982149590045" y="360" width="1.4933336620450057" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:124:materialize 0.21% (30000 30000 0.0052046060000000005 0.0052046060000000005)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">materialize</text>
+</g></svg>
+<svg class="func_g" x="657.0982149590045" y="384" width="1.4933336620450057" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:120:__iter__ 4.97% (30 30 0.12449032600000001 0.18584324500000002)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__iter__</text>
+</g></svg>
+<svg class="func_g" x="657.0982149590045" y="408" width="1.4933336620450057" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.01% (30 30 0.00025490800000000003 0.18609815300000002)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="657.0982149590045" y="432" width="1.4933336620450057" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="657.0982149590045" y="456" width="1.4933336620450062" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="336" width="185.10740782401172" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 90, 49)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="360" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="384" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="408" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="432" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="456" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="480" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="504" width="185.10740782401172" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="528" width="185.10740782401172" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="659.7892085378537" y="552" width="185.10740782401172" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="845.8966163618654" y="336" width="28.634239569149216" height="23"><g>
+    <title>&lt;frozen abc&gt;:117:__instancecheck__ 2.47% (300000 300000 0.061858765 0.112595965)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 240, 141)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__instancecheck__</text>
+</g></svg>
+<svg class="func_g" x="845.8966163618654" y="360" width="28.634239569149216" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.isinstance&gt; 2.47% (300000 300000 0.061858765 0.112595965)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.isinstance&gt;</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="384" width="28.634053082348473" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 22.68% (300000 300000 0.5680026020000001 0.680598567)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="408" width="28.634053082348473" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="432" width="28.634053082348466" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="456" width="28.634053082348466" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="480" width="28.634053082348466" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="504" width="28.634053082348466" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="528" width="28.634053082348466" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="552" width="28.634053082348466" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="576" width="28.634053082348466" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="845.8968028486663" y="600" width="28.634053082348466" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="875.5315017078086" y="336" width="13.529543832814088" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 240, 141)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="875.5315017078086" y="360" width="13.529543832814088" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="890.0610455406227" y="336" width="23.300399670443362" height="23"><g>
+    <title>~:0:&lt;built-in method _abc._abc_instancecheck&gt; 2.03% (300000 300000 0.050724862 0.0507372)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method _abc._abc_instancecheck&gt;</text>
+</g></svg>
+<svg class="func_g" x="890.0610455406227" y="360" width="23.300399670443362" height="23"><g>
+    <title>&lt;frozen abc&gt;:117:__instancecheck__ 2.03% (300000 300000 0.050724862 0.0507372)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__instancecheck__</text>
+</g></svg>
+<svg class="func_g" x="890.0610455406227" y="384" width="23.300399670443362" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.isinstance&gt; 2.47% (300000 300000 0.061858765 0.112595965)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.isinstance&gt;</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="408" width="23.300246749232723" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 22.68% (300000 300000 0.5680026020000001 0.680598567)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="432" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="456" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="480" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="504" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="528" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="552" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="576" width="23.300246749232723" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="600" width="23.300246749232723" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="890.0611984618333" y="624" width="23.300246749232723" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="914.3945326486237" y="336" width="271.11102754825754" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.isinstance&gt; 22.68% (300003 300003 0.5680068850000001 0.6806028500000001)</title>
+    <rect height="100%" width="100%" fill="rgb(255, 115, 64)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.isinstance&gt;</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="360" width="271.1093151670487" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 22.68% (300000 300000 0.5680026020000001 0.680598567)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="384" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="408" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="432" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="456" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="480" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="504" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="528" width="271.1093151670487" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="552" width="271.1093151670487" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="914.3962450298325" y="576" width="271.1093151670487" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="336" width="11.204120760327536" height="23"><g>
+    <title>~:0:&lt;method 'items' of 'dict' objects&gt; 1.02% (300000 300000 0.025474986 0.025474986)</title>
+    <rect height="100%" width="100%" fill="rgb(214, 214, 255)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;method 'items' of 'dict' objects&gt;</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="360" width="11.204120760327536" height="23"><g>
+    <title>&lt;frozen _collections_abc&gt;:941:update 1.02% (300000 300000 0.025474986 0.025474986)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">update</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="384" width="11.204120760327536" height="23"><g>
+    <title>/Users/zilliz/.pyenv/versions/3.11.8/lib/python3.11/collections/__init__.py:1111:__init__ 15.51% (300000 300000 0.388482194 1.2633702020000002)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="408" width="11.204120760327537" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:723:__init__ 6.05% (300000 300000 0.151456888 1.4148270900000002)</title>
+    <rect height="100%" width="100%" fill="rgb(225, 225, 225)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="432" width="11.204120760327537" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:44:&lt;listcomp&gt; 7.64% (300000 300000 0.19149291100000002 1.606320001)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;listcomp&gt;</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="456" width="11.204120760327537" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:25:__init__ 11.54% (300 300 0.28907528800000004 1.895395289)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="480" width="11.204120760327537" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:338:_parse_search_result_data 1.28% (300 300 0.031957532000000004 2.229512532)</title>
+    <rect height="100%" width="100%" fill="rgb(218, 218, 218)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">_parse_search_result_data</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="504" width="11.204120760327537" height="23"><g>
+    <title>/Users/zilliz/pymilvus/pymilvus/client/search_result.py:321:__init__ 0.10% (3 3 0.002448412 2.232028148)</title>
+    <rect height="100%" width="100%" fill="rgb(232, 232, 232)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">__init__</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="528" width="11.204120760327537" height="23"><g>
+    <title>/Users/zilliz/pymilvus/profile_flamegraph.py:36:profile_original 0.00% (3 3 2.3264000000000003e-05 2.2320673760000003)</title>
+    <rect height="100%" width="100%" fill="rgb(204, 204, 204)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">profile_original</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="552" width="11.204120760327536" height="23"><g>
+    <title>&lt;string&gt;:1:&lt;module&gt; 2.22% (1 1 0.055573443 2.4745014600000004)</title>
+    <rect height="100%" width="100%" fill="rgb(190, 190, 190)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;module&gt;</text>
+</g></svg>
+<svg class="func_g" x="1187.7958792396726" y="576" width="11.204120760327536" height="23"><g>
+    <title>~:0:&lt;built-in method builtins.exec&gt; 1.21% (1 1 0.030329094 2.504830554)</title>
+    <rect height="100%" width="100%" fill="rgb(197, 197, 197)" rx="2" ry="2" />
+    <text alignment-baseline="central" x="4.0" y="12.0" font-size="12px" fill="rgb(0,0,0)">&lt;built-in method builtins.exec&gt;</text>
+</g></svg>
+</svg>
