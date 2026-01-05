@@ -14,6 +14,14 @@ NQ_VALUES = [1, 10, 100]
 TOPK_VALUES = [10, 100, 1000]
 DIM_VALUES = [128, 768, 1536]
 
+# Large Scale Stress Tests (NQ * TopK > 100k)
+LARGE_SCALE_TESTS = [
+    # (nq, topk, dim, description)
+    (100, 10000, 768, "100k hits - High TopK"),
+    (1000, 1000, 768, "1M hits - Balanced"),
+    (10000, 100, 768, "1M hits - High NQ"),
+]
+
 # Representative cases for other types to avoid explosion of tests
 OTHER_TYPES_CONFIG = [
     # (type_name, builder_func, dim)
@@ -42,8 +50,10 @@ def build_float_vector_result(nq: int, topk: int, dim: int) -> schema_pb2.Search
     field.field_name = "vector"
     field.type = schema_pb2.DataType.FloatVector
     field.vectors.dim = dim
-    for i in range(total * dim):
-        field.vectors.float_vector.data.append(float(i % 1000) * 0.001)
+    # Optimize: Use extend with pre-allocated list
+    # total * dim is large, so use a simple repeated value list
+    dummy_data = [0.123] * (total * dim)
+    field.vectors.float_vector.data.extend(dummy_data)
     res.output_fields.append("vector")
     return res
 
@@ -143,13 +153,11 @@ def iterate_result(results):
 @pytest.mark.parametrize("dim", DIM_VALUES)
 def test_float_vector_matrix(benchmark, nq, topk, dim):
     """
-    Comprehensive Matrix Test for FLOAT_VECTOR
+    Comprehensive Matrix Test for FLOAT_VECTOR (Columnar)
     Covers: Initialization + Iteration
     """
-    # 1. Build Data
     res_data = build_float_vector_result(nq, topk, dim)
     
-    # 2. Benchmark ColumnarSearchResult
     def run_columnar():
         cr = ColumnarSearchResult(res_data)
         iterate_result(cr)
@@ -157,21 +165,27 @@ def test_float_vector_matrix(benchmark, nq, topk, dim):
     benchmark(run_columnar)
 
 
-# Legacy comparison for reference (Spot check only)
-def test_float_legacy_baseline(benchmark):
-    """Keep one baseline check for legacy SearchResult to ensure we track regression/improvement."""
-    nq, topk, dim = 10, 100, 768
+@pytest.mark.parametrize("nq", NQ_VALUES)
+@pytest.mark.parametrize("topk", TOPK_VALUES)
+@pytest.mark.parametrize("dim", DIM_VALUES)
+def test_float_vector_matrix_legacy(benchmark, nq, topk, dim):
+    """
+    Comprehensive Matrix Test for FLOAT_VECTOR (Legacy SearchResult)
+    Exact mirror of test_float_vector_matrix for direct comparison
+    """
     res_data = build_float_vector_result(nq, topk, dim)
+    
     def run_legacy():
         sr = SearchResult(res_data)
         iterate_result(sr)
+        
     benchmark(run_legacy)
 
 
 @pytest.mark.parametrize("type_name, builder_func_name, dim", OTHER_TYPES_CONFIG)
 def test_other_vectors(benchmark, type_name, builder_func_name, dim):
     """
-    Representative benchmarks for BINARY, FLOAT16, etc.
+    Representative benchmarks for BINARY, FLOAT16, etc. (Columnar)
     Using fixed NQ=10, TopK=100 for efficiency.
     """
     nq, topk = 10, 100
@@ -183,3 +197,53 @@ def test_other_vectors(benchmark, type_name, builder_func_name, dim):
         iterate_result(cr)
         
     benchmark(run_columnar)
+
+
+@pytest.mark.parametrize("type_name, builder_func_name, dim", OTHER_TYPES_CONFIG)
+def test_other_vectors_legacy(benchmark, type_name, builder_func_name, dim):
+    """
+    Representative benchmarks for BINARY, FLOAT16, etc. (Legacy SearchResult)
+    Exact mirror of test_other_vectors for direct comparison
+    """
+    nq, topk = 10, 100
+    builder = globals()[builder_func_name]
+    res_data = builder(nq, topk, dim)
+    
+    def run_legacy():
+        sr = SearchResult(res_data)
+        iterate_result(sr)
+        
+    benchmark(run_legacy)
+
+
+# =============================================================================
+# Large Scale Stress Tests
+# =============================================================================
+
+@pytest.mark.parametrize("nq, topk, dim, description", LARGE_SCALE_TESTS)
+def test_large_scale_columnar(benchmark, nq, topk, dim, description):
+    """
+    Large scale stress tests (100k - 1M hits) for Columnar
+    """
+    res_data = build_float_vector_result(nq, topk, dim)
+    
+    def run_columnar():
+        cr = ColumnarSearchResult(res_data)
+        iterate_result(cr)
+        
+    benchmark(run_columnar)
+
+
+@pytest.mark.parametrize("nq, topk, dim, description", LARGE_SCALE_TESTS)
+def test_large_scale_legacy(benchmark, nq, topk, dim, description):
+    """
+    Large scale stress tests (100k - 1M hits) for Legacy
+    WARNING: This may take very long time (10s+ per test)
+    """
+    res_data = build_float_vector_result(nq, topk, dim)
+    
+    def run_legacy():
+        sr = SearchResult(res_data)
+        iterate_result(sr)
+        
+    benchmark(run_legacy)
