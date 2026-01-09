@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install pytest pytest-benchmark matplotlib numpy
+          pip install pytest pytest-benchmark matplotlib numpy grpcio-testing
       
       - name: Run Complete Search Benchmarks
         run: |
@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install pytest pytest-benchmark matplotlib numpy
+          pip install pytest pytest-benchmark matplotlib numpy grpcio-testing
       
       - name: Run Complete Insert Benchmarks
         run: |
@@ -113,7 +113,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install py-spy memray
+          pip install py-spy memray grpcio-testing
       
       - name: CPU Profiling - Legacy SearchResult
         run: |
