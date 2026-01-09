@@ -119,15 +119,15 @@ jobs:
         run: |
           py-spy record -o cpu_legacy.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_iteration --nq 1000 --topk 1000 \
-              --result-type legacy --loops 20 || true
+              --scenario search_iteration --nq 100 --topk 1000 \
+              --result-type legacy --loops 10 || true
       
       - name: CPU Profiling - ColumnarSearchResult
         run: |
           py-spy record -o cpu_columnar.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_iteration --nq 1000 --topk 1000 \
-              --result-type columnar --loops 20 || true
+              --scenario search_iteration --nq 100 --topk 1000 \
+              --result-type columnar --loops 10 || true
       
       - name: CPU Profiling - Insert Preparation
         run: |
@@ -139,30 +139,30 @@ jobs:
         run: |
           py-spy record -o cpu_random_legacy.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_random --nq 1000 --topk 1000 \
-              --access-count 100000 \
-              --result-type legacy --loops 10 || true
+              --scenario search_random --nq 100 --topk 1000 \
+              --access-count 10000 \
+              --result-type legacy --loops 5 || true
 
       - name: CPU Profiling - Random Access (Columnar)
         run: |
           py-spy record -o cpu_random_columnar.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_random --nq 1000 --topk 1000 \
-              --access-count 100000 \
-              --result-type columnar --loops 10 || true
+              --scenario search_random --nq 100 --topk 1000 \
+              --access-count 10000 \
+              --result-type columnar --loops 5 || true
 
       - name: CPU Profiling - Columnar Batch
         run: |
           py-spy record -o cpu_columnar_batch.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_columnar --nq 1000 --topk 1000 \
+              --scenario search_columnar --nq 100 --topk 1000 \
               --result-type columnar --loops 10 || true
 
       - name: Memory Profiling - Legacy SearchResult
         run: |
           memray run -o mem_legacy.bin -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_iteration --nq 1000 --topk 1000 \
+              --scenario search_iteration --nq 100 --topk 1000 \
               --result-type legacy --loops 5
           memray flamegraph mem_legacy.bin -o mem_legacy.html
       
@@ -170,7 +170,7 @@ jobs:
         run: |
           memray run -o mem_columnar.bin -- \
             python tests/benchmark/profile_runner.py \
-              --scenario search_iteration --nq 1000 --topk 1000 \
+              --scenario search_iteration --nq 100 --topk 1000 \
               --result-type columnar --loops 5
           memray flamegraph mem_columnar.bin -o mem_columnar.html
       
