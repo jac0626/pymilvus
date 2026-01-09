@@ -31,6 +31,13 @@ from .kernels.search_ops import (
     run_random_access_benchmark,
     run_slice_access_benchmark,
     run_columnar_access_benchmark,
+    benchmark_cold_start_iteration_legacy,
+    benchmark_cold_start_iteration_columnar,
+    benchmark_cold_start_random_legacy,
+    benchmark_cold_start_random_columnar,
+    benchmark_cold_start_slice_legacy,
+    benchmark_cold_start_slice_columnar,
+    benchmark_cold_start_columnar_batch,
 )
 
 
@@ -116,33 +123,31 @@ def scalar_data(request):
 # =============================================================================
 
 class TestVectorScaling:
-    """Test vector field access with varying NQ and TopK."""
+    """Test vector field access with varying NQ and TopK (includes init time)."""
     
     @pytest.mark.parametrize("nq", NQ_VALUES)
     @pytest.mark.parametrize("topk", TOPK_VALUES)
     def test_float_vector_iteration_legacy(self, benchmark, nq, topk):
-        """Legacy SearchResult: Full iteration on FLOAT_VECTOR."""
+        """Legacy SearchResult: Full iteration on FLOAT_VECTOR (cold start)."""
         if nq * topk > 10_000_000:
             pytest.skip("Skipping very large dataset")
         
         data = create_search_result_data(nq, topk, [get_vector_field(DataType.FLOAT_VECTOR, 128)])
-        result = SearchResult(data)
         field_name = "vector_float_vector_128"
         
-        benchmark(run_full_iteration_benchmark, result, field_name)
+        benchmark(benchmark_cold_start_iteration_legacy, data, field_name)
     
     @pytest.mark.parametrize("nq", NQ_VALUES)
     @pytest.mark.parametrize("topk", TOPK_VALUES)
     def test_float_vector_iteration_columnar(self, benchmark, nq, topk):
-        """ColumnarSearchResult: Full iteration on FLOAT_VECTOR."""
+        """ColumnarSearchResult: Full iteration on FLOAT_VECTOR (cold start)."""
         if nq * topk > 10_000_000:
             pytest.skip("Skipping very large dataset")
         
         data = create_search_result_data(nq, topk, [get_vector_field(DataType.FLOAT_VECTOR, 128)])
-        result = ColumnarSearchResult(data)
         field_name = "vector_float_vector_128"
         
-        benchmark(run_full_iteration_benchmark, result, field_name)
+        benchmark(benchmark_cold_start_iteration_columnar, data, field_name)
 
 
 # =============================================================================
@@ -150,40 +155,37 @@ class TestVectorScaling:
 # =============================================================================
 
 class TestVectorTypes:
-    """Test all vector types with fixed NQ/TopK."""
+    """Test all vector types with fixed NQ/TopK (includes init time)."""
     
     @pytest.mark.parametrize("vtype", VECTOR_TYPES)
     @pytest.mark.parametrize("dim", VECTOR_DIMS)
     def test_vector_iteration_legacy(self, benchmark, vtype, dim):
-        """Legacy SearchResult: Full iteration across vector types."""
+        """Legacy SearchResult: Full iteration across vector types (cold start)."""
         nq, topk = 10, 1000
         field = get_vector_field(vtype, dim)
         data = create_search_result_data(nq, topk, [field])
-        result = SearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_legacy, data, field["name"])
     
     @pytest.mark.parametrize("vtype", VECTOR_TYPES)
     @pytest.mark.parametrize("dim", VECTOR_DIMS)
     def test_vector_iteration_columnar(self, benchmark, vtype, dim):
-        """ColumnarSearchResult: Full iteration across vector types."""
+        """ColumnarSearchResult: Full iteration across vector types (cold start)."""
         nq, topk = 10, 1000
         field = get_vector_field(vtype, dim)
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_columnar, data, field["name"])
     
     @pytest.mark.parametrize("vtype", VECTOR_TYPES)
     @pytest.mark.parametrize("dim", VECTOR_DIMS)
     def test_vector_columnar_batch(self, benchmark, vtype, dim):
-        """ColumnarSearchResult only: Columnar batch access."""
+        """ColumnarSearchResult only: Columnar batch access (cold start)."""
         nq, topk = 10, 1000
         field = get_vector_field(vtype, dim)
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
         
-        benchmark(run_columnar_access_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_columnar_batch, data, field["name"])
 
 
 # =============================================================================
@@ -191,37 +193,34 @@ class TestVectorTypes:
 # =============================================================================
 
 class TestScalarTypes:
-    """Test all scalar types with fixed NQ/TopK."""
+    """Test all scalar types with fixed NQ/TopK (includes init time)."""
     
     @pytest.mark.parametrize("dtype", SCALAR_TYPES)
     def test_scalar_iteration_legacy(self, benchmark, dtype):
-        """Legacy SearchResult: Full iteration across scalar types."""
+        """Legacy SearchResult: Full iteration across scalar types (cold start)."""
         nq, topk = 10, 1000
         field = {"name": f"scalar_{dtype.name.lower()}", "dtype": dtype}
         data = create_search_result_data(nq, topk, [field])
-        result = SearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_legacy, data, field["name"])
     
     @pytest.mark.parametrize("dtype", SCALAR_TYPES)
     def test_scalar_iteration_columnar(self, benchmark, dtype):
-        """ColumnarSearchResult: Full iteration across scalar types."""
+        """ColumnarSearchResult: Full iteration across scalar types (cold start)."""
         nq, topk = 10, 1000
         field = {"name": f"scalar_{dtype.name.lower()}", "dtype": dtype}
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_columnar, data, field["name"])
     
     @pytest.mark.parametrize("dtype", SCALAR_TYPES)
     def test_scalar_columnar_batch(self, benchmark, dtype):
-        """ColumnarSearchResult only: Columnar batch access."""
+        """ColumnarSearchResult only: Columnar batch access (cold start)."""
         nq, topk = 10, 1000
         field = {"name": f"scalar_{dtype.name.lower()}", "dtype": dtype}
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
         
-        benchmark(run_columnar_access_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_columnar_batch, data, field["name"])
 
 
 # =============================================================================
@@ -229,27 +228,25 @@ class TestScalarTypes:
 # =============================================================================
 
 class TestVarcharLength:
-    """Test VARCHAR with varying string lengths."""
+    """Test VARCHAR with varying string lengths (includes init time)."""
     
     @pytest.mark.parametrize("length", VARCHAR_LENGTHS)
     def test_varchar_iteration_legacy(self, benchmark, length):
-        """Legacy SearchResult: Iteration with varying VARCHAR lengths."""
+        """Legacy SearchResult: Iteration with varying VARCHAR lengths (cold start)."""
         nq, topk = 10, 1000
         field = get_varchar_field(length)
         data = create_search_result_data(nq, topk, [field])
-        result = SearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_legacy, data, field["name"])
     
     @pytest.mark.parametrize("length", VARCHAR_LENGTHS)
     def test_varchar_iteration_columnar(self, benchmark, length):
-        """ColumnarSearchResult: Iteration with varying VARCHAR lengths."""
+        """ColumnarSearchResult: Iteration with varying VARCHAR lengths (cold start)."""
         nq, topk = 10, 1000
         field = get_varchar_field(length)
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_columnar, data, field["name"])
 
 
 # =============================================================================
@@ -257,27 +254,25 @@ class TestVarcharLength:
 # =============================================================================
 
 class TestJsonComplexity:
-    """Test JSON with varying complexity."""
+    """Test JSON with varying complexity (includes init time)."""
     
     @pytest.mark.parametrize("complexity", JSON_COMPLEXITIES)
     def test_json_iteration_legacy(self, benchmark, complexity):
-        """Legacy SearchResult: Iteration with varying JSON complexity."""
+        """Legacy SearchResult: Iteration with varying JSON complexity (cold start)."""
         nq, topk = 10, 1000
         field = get_json_field(complexity)
         data = create_search_result_data(nq, topk, [field])
-        result = SearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_legacy, data, field["name"])
     
     @pytest.mark.parametrize("complexity", JSON_COMPLEXITIES)
     def test_json_iteration_columnar(self, benchmark, complexity):
-        """ColumnarSearchResult: Iteration with varying JSON complexity."""
+        """ColumnarSearchResult: Iteration with varying JSON complexity (cold start)."""
         nq, topk = 10, 1000
         field = get_json_field(complexity)
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
         
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_columnar, data, field["name"])
 
 
 # =============================================================================
@@ -285,7 +280,7 @@ class TestJsonComplexity:
 # =============================================================================
 
 class TestAccessModes:
-    """Compare all 4 access modes."""
+    """Compare all 4 access modes (includes init time)."""
     
     def _create_test_data(self, nq=10, topk=1000):
         """Helper to create consistent test data."""
@@ -294,49 +289,42 @@ class TestAccessModes:
     
     # Mode 1: Random Point Access
     def test_random_access_legacy(self, benchmark):
-        """Legacy: Random point access."""
+        """Legacy: Random point access (cold start)."""
         data, field_name = self._create_test_data()
-        result = SearchResult(data)
-        benchmark(run_random_access_benchmark, result, field_name, 1000)
+        benchmark(benchmark_cold_start_random_legacy, data, field_name, 1000)
     
     def test_random_access_columnar(self, benchmark):
-        """Columnar: Random point access."""
+        """Columnar: Random point access (cold start)."""
         data, field_name = self._create_test_data()
-        result = ColumnarSearchResult(data)
-        benchmark(run_random_access_benchmark, result, field_name, 1000)
+        benchmark(benchmark_cold_start_random_columnar, data, field_name, 1000)
     
     # Mode 2: Columnar Batch (Columnar Only)
     def test_columnar_batch_access(self, benchmark):
-        """Columnar only: Batch column access."""
+        """Columnar only: Batch column access (cold start)."""
         data, field_name = self._create_test_data()
-        result = ColumnarSearchResult(data)
-        benchmark(run_columnar_access_benchmark, result, field_name)
+        benchmark(benchmark_cold_start_columnar_batch, data, field_name)
     
     # Mode 3: Full Iteration
     def test_full_iteration_legacy(self, benchmark):
-        """Legacy: Full iteration."""
+        """Legacy: Full iteration (cold start)."""
         data, field_name = self._create_test_data()
-        result = SearchResult(data)
-        benchmark(run_full_iteration_benchmark, result, field_name)
+        benchmark(benchmark_cold_start_iteration_legacy, data, field_name)
     
     def test_full_iteration_columnar(self, benchmark):
-        """Columnar: Full iteration."""
+        """Columnar: Full iteration (cold start)."""
         data, field_name = self._create_test_data()
-        result = ColumnarSearchResult(data)
-        benchmark(run_full_iteration_benchmark, result, field_name)
+        benchmark(benchmark_cold_start_iteration_columnar, data, field_name)
     
     # Mode 4: Slice Access
     def test_slice_access_legacy(self, benchmark):
-        """Legacy: Slice access."""
+        """Legacy: Slice access (cold start)."""
         data, field_name = self._create_test_data()
-        result = SearchResult(data)
-        benchmark(run_slice_access_benchmark, result, field_name, 100)
+        benchmark(benchmark_cold_start_slice_legacy, data, field_name, 100)
     
     def test_slice_access_columnar(self, benchmark):
-        """Columnar: Slice access."""
+        """Columnar: Slice access (cold start)."""
         data, field_name = self._create_test_data()
-        result = ColumnarSearchResult(data)
-        benchmark(run_slice_access_benchmark, result, field_name, 100)
+        benchmark(benchmark_cold_start_slice_columnar, data, field_name, 100)
 
 
 # =============================================================================
@@ -344,23 +332,21 @@ class TestAccessModes:
 # =============================================================================
 
 class TestDynamicField:
-    """Test dynamic field access."""
+    """Test dynamic field access (includes init time)."""
     
     def test_dynamic_field_iteration_legacy(self, benchmark):
-        """Legacy: Dynamic field access via expanded keys."""
+        """Legacy: Dynamic field access via expanded keys (cold start)."""
         nq, topk = 10, 1000
         data = create_search_result_data(nq, topk, [DYNAMIC_FIELD])
-        result = SearchResult(data)
         # Legacy expands dynamic fields into entity, access 'id' key from JSON
-        benchmark(run_full_iteration_benchmark, result, "id")
+        benchmark(benchmark_cold_start_iteration_legacy, data, "id")
     
     def test_dynamic_field_iteration_columnar(self, benchmark):
-        """Columnar: Dynamic field access via $meta."""
+        """Columnar: Dynamic field access via $meta (cold start)."""
         nq, topk = 10, 1000
         data = create_search_result_data(nq, topk, [DYNAMIC_FIELD])
-        result = ColumnarSearchResult(data)
         # Columnar can access $meta directly or expanded fields
-        benchmark(run_full_iteration_benchmark, result, "id")
+        benchmark(benchmark_cold_start_iteration_columnar, data, "id")
 
 
 # =============================================================================
@@ -368,28 +354,25 @@ class TestDynamicField:
 # =============================================================================
 
 class TestAdvancedTypes:
-    """Test advanced types: ARRAY, Embedding List."""
+    """Test advanced types: ARRAY, Embedding List (includes init time)."""
     
     def test_array_iteration_legacy(self, benchmark):
-        """Legacy: ARRAY field iteration."""
+        """Legacy: ARRAY field iteration (cold start)."""
         nq, topk = 10, 1000
         field = get_array_field(DataType.INT64)
         data = create_search_result_data(nq, topk, [field])
-        result = SearchResult(data)
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_legacy, data, field["name"])
     
     def test_array_iteration_columnar(self, benchmark):
-        """Columnar: ARRAY field iteration."""
+        """Columnar: ARRAY field iteration (cold start)."""
         nq, topk = 10, 1000
         field = get_array_field(DataType.INT64)
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_columnar, data, field["name"])
     
     def test_embedding_list_iteration_columnar(self, benchmark):
-        """Columnar: Embedding List (Array of Vector) iteration."""
+        """Columnar: Embedding List (Array of Vector) iteration (cold start)."""
         nq, topk = 10, 100  # Smaller due to complexity
         field = get_embedding_list_field(dim=128, num_vecs=3)
         data = create_search_result_data(nq, topk, [field])
-        result = ColumnarSearchResult(data)
-        benchmark(run_full_iteration_benchmark, result, field["name"])
+        benchmark(benchmark_cold_start_iteration_columnar, data, field["name"])

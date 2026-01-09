@@ -252,3 +252,80 @@ def compare_legacy_vs_columnar(
         results["legacy_count"] = None  # Not supported
     
     return results
+
+
+# =============================================================================
+# Cold Start Benchmark Functions (Include Object Initialization)
+# =============================================================================
+
+def benchmark_cold_start_iteration_legacy(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+) -> int:
+    """
+    Cold start benchmark: Create SearchResult + iterate all fields.
+    Includes object initialization time.
+    """
+    result = SearchResult(data)
+    return run_full_iteration_benchmark(result, field_name)
+
+
+def benchmark_cold_start_iteration_columnar(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+) -> int:
+    """
+    Cold start benchmark: Create ColumnarSearchResult + iterate all fields.
+    Includes object initialization time.
+    """
+    result = ColumnarSearchResult(data)
+    return run_full_iteration_benchmark(result, field_name)
+
+
+def benchmark_cold_start_random_legacy(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+    num_accesses: int = 1000,
+) -> int:
+    """Cold start benchmark: Create SearchResult + random access."""
+    result = SearchResult(data)
+    return run_random_access_benchmark(result, field_name, num_accesses)
+
+
+def benchmark_cold_start_random_columnar(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+    num_accesses: int = 1000,
+) -> int:
+    """Cold start benchmark: Create ColumnarSearchResult + random access."""
+    result = ColumnarSearchResult(data)
+    return run_random_access_benchmark(result, field_name, num_accesses)
+
+
+def benchmark_cold_start_slice_legacy(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+    slice_size: int = 100,
+) -> int:
+    """Cold start benchmark: Create SearchResult + slice access."""
+    result = SearchResult(data)
+    return run_slice_access_benchmark(result, field_name, slice_size)
+
+
+def benchmark_cold_start_slice_columnar(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+    slice_size: int = 100,
+) -> int:
+    """Cold start benchmark: Create ColumnarSearchResult + slice access."""
+    result = ColumnarSearchResult(data)
+    return run_slice_access_benchmark(result, field_name, slice_size)
+
+
+def benchmark_cold_start_columnar_batch(
+    data: schema_pb2.SearchResultData,
+    field_name: str,
+) -> int:
+    """Cold start benchmark: Create ColumnarSearchResult + columnar batch access."""
+    result = ColumnarSearchResult(data)
+    return run_columnar_access_benchmark(result, field_name)

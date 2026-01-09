@@ -30,6 +30,13 @@ from .search_ops import (
     run_slice_access_benchmark,
     run_columnar_access_benchmark,
     compare_legacy_vs_columnar,
+    benchmark_cold_start_iteration_legacy,
+    benchmark_cold_start_iteration_columnar,
+    benchmark_cold_start_random_legacy,
+    benchmark_cold_start_random_columnar,
+    benchmark_cold_start_slice_legacy,
+    benchmark_cold_start_slice_columnar,
+    benchmark_cold_start_columnar_batch,
 )
 
 from .insert_ops import (
