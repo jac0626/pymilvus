@@ -131,7 +131,7 @@ jobs:
       
       - name: Memory Profiling - Legacy SearchResult
         run: |
-          memray run -o mem_legacy.bin \
+          memray run -o mem_legacy.bin -- \
             python tests/benchmark/profile_runner.py \
               --scenario search_iteration --nq 1000 --topk 1000 \
               --result-type legacy --loops 3
@@ -139,7 +139,7 @@ jobs:
       
       - name: Memory Profiling - ColumnarSearchResult
         run: |
-          memray run -o mem_columnar.bin \
+          memray run -o mem_columnar.bin -- \
             python tests/benchmark/profile_runner.py \
               --scenario search_iteration --nq 1000 --topk 1000 \
               --result-type columnar --loops 3
