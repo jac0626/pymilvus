@@ -190,6 +190,12 @@ def get_kitchen_sink_fields(dim: int = 128) -> List[Dict[str, Any]]:
 # Benchmark Functions
 # =============================================================================
 
+# =============================================================================
+# Benchmark Functions
+# =============================================================================
+
+from pymilvus.client.prepare import Prepare
+
 def run_insert_data_generation_benchmark(
     batch_size: int,
     field_configs: List[Dict[str, Any]],
@@ -211,3 +217,50 @@ def run_insert_data_generation_benchmark(
     else:
         data = generate_insert_data_columnar(batch_size, field_configs)
     return batch_size
+
+
+def benchmark_insert_prepare(
+    data: List[Dict[str, Any]],
+    field_configs: List[Dict[str, Any]],
+) -> int:
+    """
+    Benchmark packing of field data into InsertRequest (Protobuf).
+    
+    This measures the time to convert user data (List of Dicts)
+    to a Protobuf InsertRequest object.
+    
+    Args:
+        data: User data (list of dictionaries).
+        field_configs: Field configurations used to generate the data.
+    
+    Returns:
+        Number of rows processed.
+    """
+    # 1. Convert field_configs to fields_info format expected by Prepare
+    # Prepare expects a Dict[field_name, field_info_dict] or similar depending on usage.
+    # But row_insert_param API requires fields_info to be passed.
+    # Based on prepare.py, row_insert_param takes fields_info as Dict.
+    # We construct a wrapper that mimics what Collection._get_fields_info() might return
+    # or just enough for Prepare to work.
+    
+    # We need to ensure each config has 'type' key which maps to 'dtype' in our config
+    fields_info = []
+    for cfg in field_configs:
+        f_info = cfg.copy()
+        f_info["type"] = cfg["dtype"]
+        # Add required keys if missing
+        if "is_primary" not in f_info:
+            f_info["is_primary"] = (cfg["name"] == "id")
+        if "auto_id" not in f_info:
+            f_info["auto_id"] = False
+        fields_info.append(f_info)
+
+    # 2. Call Prepare.row_insert_param
+    Prepare.row_insert_param(
+        collection_name="benchmark_collection",
+        entities=data,
+        partition_name="_default",
+        fields_info=fields_info
+    )
+    
+    return len(data)

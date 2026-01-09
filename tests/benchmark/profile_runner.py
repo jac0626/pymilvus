@@ -45,6 +45,7 @@ from tests.benchmark.kernels.search_ops import (
 from tests.benchmark.kernels.insert_ops import (
     generate_insert_data,
     get_kitchen_sink_fields,
+    benchmark_insert_prepare,
 )
 
 
@@ -125,18 +126,20 @@ def run_search_scenario(args):
 
 
 def run_insert_scenario(args):
-    """Run an insert data generation scenario."""
+    """Run an insert data preparation scenario."""
     fields = get_kitchen_sink_fields(args.dim)
     
     print(f"Generating insert data: batch_size={args.batch_size}, fields={len(fields)}")
+    data = generate_insert_data(args.batch_size, fields)
     
+    print(f"Running insert preparation benchmark (list -> protobuf)")
     times = []
     for i in range(args.loops):
         start = time.perf_counter()
-        data = generate_insert_data(args.batch_size, fields)
+        count = benchmark_insert_prepare(data, fields)
         elapsed = time.perf_counter() - start
         times.append(elapsed)
-        print(f"  Loop {i+1}/{args.loops}: {elapsed*1000:.2f}ms (rows: {len(data)})")
+        print(f"  Loop {i+1}/{args.loops}: {elapsed*1000:.2f}ms (rows: {count})")
     
     avg_time = sum(times) / len(times)
     print(f"\nSummary:")

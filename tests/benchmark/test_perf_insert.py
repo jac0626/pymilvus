@@ -18,6 +18,7 @@ from .kernels.insert_ops import (
     generate_insert_data_columnar,
     get_kitchen_sink_fields,
     run_insert_data_generation_benchmark,
+    benchmark_insert_prepare,
 )
 from .kernels.data_gen import (
     get_vector_field,
@@ -38,31 +39,16 @@ VECTOR_DIMS = [128, 768, 1536]
 # =============================================================================
 
 class TestInsertKitchenSink:
-    """Test insert data generation with comprehensive schema."""
+    """Test insert data preparation (Dict to Protobuf) with comprehensive schema."""
     
     @pytest.mark.parametrize("batch_size", BATCH_SIZES)
     @pytest.mark.parametrize("dim", VECTOR_DIMS)
-    def test_insert_kitchen_sink_row_format(self, benchmark, batch_size, dim):
-        """Generate insert data in row format (list of dicts)."""
+    def test_insert_prepare_kitchen_sink(self, benchmark, batch_size, dim):
+        """Benchmark converting row data to InsertRequest (Protobuf)."""
         fields = get_kitchen_sink_fields(dim)
+        data = generate_insert_data(batch_size, fields)
         
-        def run():
-            return generate_insert_data(batch_size, fields)
-        
-        result = benchmark(run)
-        assert len(result) == batch_size
-    
-    @pytest.mark.parametrize("batch_size", BATCH_SIZES)
-    @pytest.mark.parametrize("dim", VECTOR_DIMS)
-    def test_insert_kitchen_sink_columnar_format(self, benchmark, batch_size, dim):
-        """Generate insert data in columnar format (dict of lists)."""
-        fields = get_kitchen_sink_fields(dim)
-        
-        def run():
-            return generate_insert_data_columnar(batch_size, fields)
-        
-        result = benchmark(run)
-        assert len(result[fields[0]["name"]]) == batch_size
+        benchmark(benchmark_insert_prepare, data, fields)
 
 
 # =============================================================================
@@ -70,37 +56,29 @@ class TestInsertKitchenSink:
 # =============================================================================
 
 class TestInsertVectorOnly:
-    """Test insert data generation for vector-only scenarios."""
+    """Test insert data preparation for vector-only scenarios."""
     
     @pytest.mark.parametrize("batch_size", BATCH_SIZES)
     @pytest.mark.parametrize("dim", VECTOR_DIMS)
-    def test_insert_float_vector_only(self, benchmark, batch_size, dim):
-        """Generate insert data with only FLOAT_VECTOR."""
+    def test_insert_prepare_float_vector_only(self, benchmark, batch_size, dim):
+        """Benchmark prepare insert: FLOAT_VECTOR."""
         fields = [
             {"name": "id", "dtype": DataType.INT64},
             {"name": "vector", "dtype": DataType.FLOAT_VECTOR, "dim": dim},
         ]
-        
-        def run():
-            return generate_insert_data(batch_size, fields)
-        
-        result = benchmark(run)
-        assert len(result) == batch_size
+        data = generate_insert_data(batch_size, fields)
+        benchmark(benchmark_insert_prepare, data, fields)
     
     @pytest.mark.parametrize("batch_size", BATCH_SIZES)
-    def test_insert_binary_vector_only(self, benchmark, batch_size):
-        """Generate insert data with only BINARY_VECTOR."""
+    def test_insert_prepare_binary_vector_only(self, benchmark, batch_size):
+        """Benchmark prepare insert: BINARY_VECTOR."""
         dim = 1024  # bits
         fields = [
             {"name": "id", "dtype": DataType.INT64},
             {"name": "vector", "dtype": DataType.BINARY_VECTOR, "dim": dim},
         ]
-        
-        def run():
-            return generate_insert_data(batch_size, fields)
-        
-        result = benchmark(run)
-        assert len(result) == batch_size
+        data = generate_insert_data(batch_size, fields)
+        benchmark(benchmark_insert_prepare, data, fields)
 
 
 # =============================================================================
@@ -108,37 +86,29 @@ class TestInsertVectorOnly:
 # =============================================================================
 
 class TestInsertScalarImpact:
-    """Test how scalar fields impact insert performance."""
+    """Test how scalar fields impact insert preparation performance."""
     
     @pytest.mark.parametrize("batch_size", BATCH_SIZES)
-    def test_insert_with_large_varchar(self, benchmark, batch_size):
-        """Insert with 8KB VARCHAR strings."""
+    def test_insert_prepare_with_large_varchar(self, benchmark, batch_size):
+        """Benchmark prepare insert: 8KB VARCHAR."""
         fields = [
             {"name": "id", "dtype": DataType.INT64},
             {"name": "content", "dtype": DataType.VARCHAR, "length": 8192},
             {"name": "vector", "dtype": DataType.FLOAT_VECTOR, "dim": 128},
         ]
-        
-        def run():
-            return generate_insert_data(batch_size, fields)
-        
-        result = benchmark(run)
-        assert len(result) == batch_size
+        data = generate_insert_data(batch_size, fields)
+        benchmark(benchmark_insert_prepare, data, fields)
     
     @pytest.mark.parametrize("batch_size", BATCH_SIZES)
-    def test_insert_with_complex_json(self, benchmark, batch_size):
-        """Insert with complex JSON objects."""
+    def test_insert_prepare_with_complex_json(self, benchmark, batch_size):
+        """Benchmark prepare insert: Complex JSON."""
         fields = [
             {"name": "id", "dtype": DataType.INT64},
             {"name": "metadata", "dtype": DataType.JSON, "complexity": "complex"},
             {"name": "vector", "dtype": DataType.FLOAT_VECTOR, "dim": 128},
         ]
-        
-        def run():
-            return generate_insert_data(batch_size, fields)
-        
-        result = benchmark(run)
-        assert len(result) == batch_size
+        data = generate_insert_data(batch_size, fields)
+        benchmark(benchmark_insert_prepare, data, fields)
 
 
 # =============================================================================
@@ -146,19 +116,8 @@ class TestInsertScalarImpact:
 # =============================================================================
 
 class TestInsertFormatComparison:
-    """Compare row vs columnar insert data generation."""
+    """Compare row vs columnar insert data preparation (TODO: Add columnar support)."""
     
-    def test_row_vs_columnar_small_batch(self, benchmark):
-        """Small batch: row vs columnar."""
-        batch_size = 100
-        fields = get_kitchen_sink_fields(128)
-        
-        # Test row format in this test
-        benchmark(generate_insert_data, batch_size, fields)
-    
-    def test_row_vs_columnar_large_batch(self, benchmark):
-        """Large batch comparison."""
-        batch_size = 10000
-        fields = get_kitchen_sink_fields(128)
-        
-        benchmark(generate_insert_data, batch_size, fields)
+    # Currently only row format is supported by benchmark_insert_prepare
+    # because Prepare.row_insert_param works with list of dicts.
+    pass

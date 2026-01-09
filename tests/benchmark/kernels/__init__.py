@@ -37,6 +37,7 @@ from .insert_ops import (
     generate_insert_data_columnar,
     get_kitchen_sink_fields,
     run_insert_data_generation_benchmark,
+    benchmark_insert_prepare,
 )
 
 __all__ = [
@@ -65,4 +66,5 @@ __all__ = [
     "generate_insert_data_columnar",
     "get_kitchen_sink_fields",
     "run_insert_data_generation_benchmark",
+    "benchmark_insert_prepare",
 ]
