@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
+# Change directory to project root
+cd "$(dirname "$0")/../../.."
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+
 # =============================================================================
 # Milvus Benchmark Runner
-# Usage: ./run_all_benchmarks.sh [small|medium|large]
+# Usage: ./tests/benchmark/scripts/run_all.sh [small|medium|large]
 #
 # Sizes:
 #   small  : NQ=100, TopK=1000  (Default, safe for 8GB RAM)
@@ -16,6 +20,7 @@ OUTPUT_DIR="benchmark_results"
 mkdir -p "$OUTPUT_DIR"
 
 echo "Using size: $SIZE"
+echo "Project Root: $(pwd)"
 
 if [ "$SIZE" == "small" ]; then
     NQ=100
@@ -104,6 +109,7 @@ run_mem_profile() {
 }
 
 # Reduce loops for memory profiling to save time/space
+# But keep scenarios consistent with CPU profiling
 MEM_LOOPS=3
 
 # 1. Search Iteration (Legacy)
@@ -114,7 +120,19 @@ run_mem_profile "mem_search_legacy" --scenario search_iteration \
 run_mem_profile "mem_search_columnar" --scenario search_iteration \
     --nq $NQ --topk $TOPK --result-type columnar --loops $MEM_LOOPS
 
-# 3. Insert Preparation
+# 3. Search Random (Legacy)
+run_mem_profile "mem_random_legacy" --scenario search_random \
+    --nq $NQ --topk $TOPK --access-count $ACCESS_COUNT --result-type legacy --loops $MEM_LOOPS
+
+# 4. Search Random (Columnar)
+run_mem_profile "mem_random_columnar" --scenario search_random \
+    --nq $NQ --topk $TOPK --access-count $ACCESS_COUNT --result-type columnar --loops $MEM_LOOPS
+
+# 5. Search Batch (Columnar)
+run_mem_profile "mem_batch_columnar" --scenario search_columnar \
+    --nq $NQ --topk $TOPK --result-type columnar --loops $MEM_LOOPS
+
+# 6. Insert Preparation
 run_mem_profile "mem_insert_prep" --scenario insert \
     --batch-size $BATCH_SIZE --loops $MEM_LOOPS
 
