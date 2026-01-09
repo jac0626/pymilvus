@@ -135,6 +135,29 @@ jobs:
             python tests/benchmark/profile_runner.py \
               --scenario insert --batch-size 10000 --loops 10 || true
 
+      - name: CPU Profiling - Random Access (Legacy)
+        run: |
+          py-spy record -o cpu_random_legacy.svg --format speedscope -- \
+            python tests/benchmark/profile_runner.py \
+              --scenario search_random --nq 1000 --topk 1000 \
+              --access-count 100000 \
+              --result-type legacy --loops 10 || true
+
+      - name: CPU Profiling - Random Access (Columnar)
+        run: |
+          py-spy record -o cpu_random_columnar.svg --format speedscope -- \
+            python tests/benchmark/profile_runner.py \
+              --scenario search_random --nq 1000 --topk 1000 \
+              --access-count 100000 \
+              --result-type columnar --loops 10 || true
+
+      - name: CPU Profiling - Columnar Batch
+        run: |
+          py-spy record -o cpu_columnar_batch.svg --format speedscope -- \
+            python tests/benchmark/profile_runner.py \
+              --scenario search_columnar --nq 1000 --topk 1000 \
+              --result-type columnar --loops 10 || true
+
       - name: Memory Profiling - Legacy SearchResult
         run: |
           memray run -o mem_legacy.bin -- \

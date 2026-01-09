@@ -88,13 +88,13 @@ def run_search_scenario(args):
     if args.result_type == "legacy":
         scenario_map = {
             "search_iteration": lambda: benchmark_iteration_legacy(data, field_name),
-            "search_random": lambda: benchmark_random_legacy(data, field_name, 1000),
+            "search_random": lambda: benchmark_random_legacy(data, field_name, args.access_count),
             "search_slice": lambda: benchmark_slice_legacy(data, field_name, 100),
         }
     else:
         scenario_map = {
             "search_iteration": lambda: benchmark_iteration_columnar(data, field_name),
-            "search_random": lambda: benchmark_random_columnar(data, field_name, 1000),
+            "search_random": lambda: benchmark_random_columnar(data, field_name, args.access_count),
             "search_slice": lambda: benchmark_slice_columnar(data, field_name, 100),
             "search_columnar": lambda: benchmark_columnar_batch(data, field_name),
         }
@@ -171,6 +171,8 @@ def main():
     parser.add_argument("--complexity", type=str, default="simple", help="JSON complexity")
     parser.add_argument("--result-type", type=str, default="columnar",
                         choices=["legacy", "columnar"], help="Result type to use")
+    
+    parser.add_argument("--access-count", type=int, default=1000, help="Number of random accesses")
     
     # Insert arguments
     parser.add_argument("--batch-size", type=int, default=1000, help="Insert batch size")
