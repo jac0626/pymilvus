@@ -120,14 +120,14 @@ jobs:
           py-spy record -o cpu_legacy.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
               --scenario search_iteration --nq 1000 --topk 1000 \
-              --result-type legacy --loops 5
+              --result-type legacy --loops 5 || true
       
       - name: CPU Profiling - ColumnarSearchResult
         run: |
           py-spy record -o cpu_columnar.svg --format speedscope -- \
             python tests/benchmark/profile_runner.py \
               --scenario search_iteration --nq 1000 --topk 1000 \
-              --result-type columnar --loops 5
+              --result-type columnar --loops 5 || true
       
       - name: Memory Profiling - Legacy SearchResult
         run: |
