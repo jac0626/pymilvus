@@ -76,40 +76,44 @@ def run_search_scenario(args):
     else:
         field = {"name": f"field_{dtype.name.lower()}", "dtype": dtype}
     
-    # Generate data
+    # Generate data (once - this simulates receiving protobuf from server)
     print(f"Generating data: nq={args.nq}, topk={args.topk}, dtype={dtype.name}")
     data = create_search_result_data(args.nq, args.topk, [field])
     
-    # Create result object
-    if args.result_type == "legacy":
-        result = SearchResult(data)
-    else:
-        result = ColumnarSearchResult(data)
-    
     field_name = field["name"]
-    print(f"Result type: {type(result).__name__}, field: {field_name}")
+    print(f"Result type: {'SearchResult' if args.result_type == 'legacy' else 'ColumnarSearchResult'}, field: {field_name}")
     
-    # Select scenario
-    scenario_map = {
-        "search_iteration": lambda: run_full_iteration_benchmark(result, field_name),
-        "search_random": lambda: run_random_access_benchmark(result, field_name, 1000),
-        "search_slice": lambda: run_slice_access_benchmark(result, field_name, 100),
-        "search_columnar": lambda: run_columnar_access_benchmark(result, field_name),
-    }
+    # Select scenario function
+    def get_run_fn(result):
+        scenario_map = {
+            "search_iteration": lambda: run_full_iteration_benchmark(result, field_name),
+            "search_random": lambda: run_random_access_benchmark(result, field_name, 1000),
+            "search_slice": lambda: run_slice_access_benchmark(result, field_name, 100),
+            "search_columnar": lambda: run_columnar_access_benchmark(result, field_name),
+        }
+        return scenario_map.get(args.scenario)
     
-    if args.scenario not in scenario_map:
+    if args.scenario not in ["search_iteration", "search_random", "search_slice", "search_columnar"]:
         print(f"Unknown scenario: {args.scenario}")
-        print(f"Available: {list(scenario_map.keys())}")
+        print(f"Available: search_iteration, search_random, search_slice, search_columnar")
         return
     
-    run_fn = scenario_map[args.scenario]
-    
-    # Run benchmark
+    # Run benchmark - include object initialization in each loop (cold start)
     print(f"Running scenario: {args.scenario}, loops: {args.loops}")
     times = []
     for i in range(args.loops):
         start = time.perf_counter()
+        
+        # Create result object INSIDE loop (cold start per iteration)
+        if args.result_type == "legacy":
+            result = SearchResult(data)
+        else:
+            result = ColumnarSearchResult(data)
+        
+        # Run the access pattern
+        run_fn = get_run_fn(result)
         count = run_fn()
+        
         elapsed = time.perf_counter() - start
         times.append(elapsed)
         print(f"  Loop {i+1}/{args.loops}: {elapsed*1000:.2f}ms (items: {count})")
