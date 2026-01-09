@@ -11,7 +11,7 @@ Usage:
         --scenario search_iteration --nq 1000 --topk 1000 --dtype float_vector
 
     # Memory Profiling with memray
-    memray run -o mem.bin tests/benchmark/profile_runner.py \\
+    memray run -o mem.bin -- python tests/benchmark/profile_runner.py \\
         --scenario search_iteration --nq 1000 --topk 1000
 
     # Direct Run (for timing)
@@ -26,22 +26,21 @@ import sys
 sys.path.insert(0, ".")
 
 from pymilvus.client.types import DataType
-from pymilvus.client.search_result import SearchResult
-from pymilvus.client.columnar_search_result import ColumnarSearchResult
 
 from tests.benchmark.kernels.data_gen import (
     create_search_result_data,
     get_vector_field,
     get_varchar_field,
     get_json_field,
-    get_array_field,
-    SCALAR_FIELDS_CORE,
 )
 from tests.benchmark.kernels.search_ops import (
-    run_full_iteration_benchmark,
-    run_random_access_benchmark,
-    run_slice_access_benchmark,
-    run_columnar_access_benchmark,
+    benchmark_iteration_legacy,
+    benchmark_iteration_columnar,
+    benchmark_random_legacy,
+    benchmark_random_columnar,
+    benchmark_slice_legacy,
+    benchmark_slice_columnar,
+    benchmark_columnar_batch,
 )
 from tests.benchmark.kernels.insert_ops import (
     generate_insert_data,
@@ -76,44 +75,43 @@ def run_search_scenario(args):
     else:
         field = {"name": f"field_{dtype.name.lower()}", "dtype": dtype}
     
-    # Generate data (once - this simulates receiving protobuf from server)
+    # Generate data (once - simulates receiving protobuf from server)
     print(f"Generating data: nq={args.nq}, topk={args.topk}, dtype={dtype.name}")
     data = create_search_result_data(args.nq, args.topk, [field])
     
     field_name = field["name"]
-    print(f"Result type: {'SearchResult' if args.result_type == 'legacy' else 'ColumnarSearchResult'}, field: {field_name}")
+    result_type_name = 'SearchResult' if args.result_type == 'legacy' else 'ColumnarSearchResult'
+    print(f"Result type: {result_type_name}, field: {field_name}")
     
-    # Select scenario function
-    def get_run_fn(result):
+    # Map scenarios to cold-start benchmark functions
+    if args.result_type == "legacy":
         scenario_map = {
-            "search_iteration": lambda: run_full_iteration_benchmark(result, field_name),
-            "search_random": lambda: run_random_access_benchmark(result, field_name, 1000),
-            "search_slice": lambda: run_slice_access_benchmark(result, field_name, 100),
-            "search_columnar": lambda: run_columnar_access_benchmark(result, field_name),
+            "search_iteration": lambda: benchmark_iteration_legacy(data, field_name),
+            "search_random": lambda: benchmark_random_legacy(data, field_name, 1000),
+            "search_slice": lambda: benchmark_slice_legacy(data, field_name, 100),
         }
-        return scenario_map.get(args.scenario)
+    else:
+        scenario_map = {
+            "search_iteration": lambda: benchmark_iteration_columnar(data, field_name),
+            "search_random": lambda: benchmark_random_columnar(data, field_name, 1000),
+            "search_slice": lambda: benchmark_slice_columnar(data, field_name, 100),
+            "search_columnar": lambda: benchmark_columnar_batch(data, field_name),
+        }
     
-    if args.scenario not in ["search_iteration", "search_random", "search_slice", "search_columnar"]:
+    if args.scenario not in scenario_map:
         print(f"Unknown scenario: {args.scenario}")
-        print(f"Available: search_iteration, search_random, search_slice, search_columnar")
+        available = list(scenario_map.keys())
+        print(f"Available for {result_type_name}: {available}")
         return
     
-    # Run benchmark - include object initialization in each loop (cold start)
+    run_fn = scenario_map[args.scenario]
+    
+    # Run benchmark (each call includes object creation = cold start)
     print(f"Running scenario: {args.scenario}, loops: {args.loops}")
     times = []
     for i in range(args.loops):
         start = time.perf_counter()
-        
-        # Create result object INSIDE loop (cold start per iteration)
-        if args.result_type == "legacy":
-            result = SearchResult(data)
-        else:
-            result = ColumnarSearchResult(data)
-        
-        # Run the access pattern
-        run_fn = get_run_fn(result)
         count = run_fn()
-        
         elapsed = time.perf_counter() - start
         times.append(elapsed)
         print(f"  Loop {i+1}/{args.loops}: {elapsed*1000:.2f}ms (items: {count})")
@@ -156,9 +154,9 @@ def main():
     
     # Common arguments
     parser.add_argument("--scenario", type=str, required=True,
-                        help="Scenario to run: search_iteration, search_random, search_slice, search_columnar, insert")
+                        help="Scenario: search_iteration, search_random, search_slice, search_columnar, insert")
     parser.add_argument("--loops", type=int, default=5,
-                        help="Number of loops to run (for stable timing)")
+                        help="Number of loops to run")
     
     # Search arguments
     parser.add_argument("--nq", type=int, default=10, help="Number of queries")
