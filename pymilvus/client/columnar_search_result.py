@@ -527,7 +527,7 @@ class ColumnarHits:
     def get_column(self, field_name: str) -> Union[List, bytes, Any]:
         """
         Retrieve all values for a field in this query result column.
-        
+
         This method returns the raw data efficiently:
         - For Scalars (INT, FLOAT, VARCHAR): Returns List[Any]
         - For FLOAT_VECTOR: Returns List[float] (FLATTENED for performance)
@@ -542,7 +542,7 @@ class ColumnarHits:
             if meta_data is not None and meta_data.type == DataType.JSON:
                 if field_name not in self._column_payload_cache:
                     self._column_payload_cache[field_name] = meta_data.scalars.json_data.data
-                
+
                 json_data = self._column_payload_cache[field_name]
                 # Dynamic fields require parsing $meta, so we must iterate.
                 # But we can optimize by doing it in a tight loop.
@@ -575,64 +575,65 @@ class ColumnarHits:
             dim = field_data.vectors.dim
             return data[start * dim : end * dim]
 
-        elif dtype == DataType.BINARY_VECTOR:
+        if dtype == DataType.BINARY_VECTOR:
             data = get_payload(field_name, lambda: field_data.vectors.binary_vector)
             bpv = field_data.vectors.dim // 8
             return data[start * bpv : end * bpv]
 
-        elif dtype in (DataType.FLOAT16_VECTOR, DataType.BFLOAT16_VECTOR):
+        if dtype in (DataType.FLOAT16_VECTOR, DataType.BFLOAT16_VECTOR):
             field_attr = "float16_vector" if dtype == DataType.FLOAT16_VECTOR else "bfloat16_vector"
             data = get_payload(field_name, lambda: getattr(field_data.vectors, field_attr))
             bpv = field_data.vectors.dim * 2
             return data[start * bpv : end * bpv]
 
-        elif dtype == DataType.INT8_VECTOR:
+        if dtype == DataType.INT8_VECTOR:
             data = get_payload(field_name, lambda: field_data.vectors.int8_vector)
             dim = field_data.vectors.dim
             return data[start * dim : end * dim]
 
-        elif dtype == DataType.BOOL:
+        if dtype == DataType.BOOL:
             data = get_payload(field_name, lambda: field_data.scalars.bool_data.data)
             return data[start:end]
 
-        elif dtype in (DataType.INT8, DataType.INT16, DataType.INT32):
+        if dtype in (DataType.INT8, DataType.INT16, DataType.INT32):
             data = get_payload(field_name, lambda: field_data.scalars.int_data.data)
             return data[start:end]
 
-        elif dtype == DataType.INT64:
+        if dtype == DataType.INT64:
             data = get_payload(field_name, lambda: field_data.scalars.long_data.data)
             return data[start:end]
 
-        elif dtype == DataType.FLOAT:
+        if dtype == DataType.FLOAT:
             data = get_payload(field_name, lambda: field_data.scalars.float_data.data)
             return data[start:end]
 
-        elif dtype == DataType.DOUBLE:
+        if dtype == DataType.DOUBLE:
             data = get_payload(field_name, lambda: field_data.scalars.double_data.data)
             return data[start:end]
 
-        elif dtype in (DataType.VARCHAR, DataType.STRING, DataType.TIMESTAMPTZ):
+        if dtype in (DataType.VARCHAR, DataType.STRING, DataType.TIMESTAMPTZ):
             data = get_payload(field_name, lambda: field_data.scalars.string_data.data)
             return data[start:end]
 
-        elif dtype == DataType.JSON:
+        if dtype == DataType.JSON:
             data = get_payload(field_name, lambda: field_data.scalars.json_data.data)
             # Return raw bytes for JSON to avoid expensive bulk deserialization
             return data[start:end]
 
-        elif dtype == DataType.ARRAY:
+        if dtype == DataType.ARRAY:
             data = get_payload(field_name, lambda: field_data.scalars.array_data.data)
             elem_type = field_data.scalars.array_data.element_type
             # Arrays must be converted because the Proto representation is recursive/complex
             return [self._extract_array_element(data[i], elem_type) for i in range(start, end)]
-            
-        elif dtype == DataType.GEOMETRY:
+
+        if dtype == DataType.GEOMETRY:
             data = get_payload(field_name, lambda: field_data.scalars.geometry_wkt_data.data)
             return data[start:end]
-            
+
         # Fallback for complex types
         accessor = self._bind_accessor(field_name)
         return [accessor(i) for i in range(len(self))]
+
     def get_all_ids(self) -> List[Union[str, int]]:
         """Return all IDs for this query."""
         return self.ids

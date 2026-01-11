@@ -1,10 +1,11 @@
 import pytest
 
-from . import mock_responses
-from .conftest import (
+from tests.benchmark import mock_responses
+from tests.benchmark.conftest import (
     get_default_test_schema,
     setup_search_mock,
 )
+
 
 
 class TestSearchBench:

@@ -12,13 +12,13 @@ This directory contains benchmarks and profiling for scalar field access perform
 
 ```bash
 # Run benchmarks
-pytest tests/benchmark/scalar_perf/test_scalar_bench.py --benchmark-json=scalar_benchmark.json
+pytest tests/benchmark/search_perf/scalar/test_scalar_bench.py --benchmark-json=scalar_benchmark.json
 
 # Run CPU profiling
-python tests/benchmark/scalar_perf/profile_scalar_performance.py
+python tests/benchmark/search_perf/scalar/profile_scalar_performance.py
 
 # Run memory profiling  
-python -m memray run tests/benchmark/scalar_perf/profile_scalar_memory.py
+python -m memray run tests/benchmark/search_perf/scalar/profile_scalar_memory.py
 ```
 
 ## Key Findings
