@@ -30,13 +30,11 @@ jobs:
           # Verify installations
           pip show pymilvus pytest-benchmark memray py-spy
 
-      - name: Grant permissions to py-spy
-        # py-spy needs elevated permissions to profile
+      - name: Grant permissions for Profiling
+        # py-spy and memray need elevated permissions to attach to processes
         run: |
-          # Create a wrapper or run with sudo in the script if needed.
-          # However, in GitHub Actions, the runner user usually has sudo access.
-          # Memray also requires ptrace permissions.
           echo "Configuring ptrace..."
+          # Allow non-parent processes to trace each other (required for py-spy/memray)
           sudo sysctl -w kernel.yama.ptrace_scope=0 || true
 
       - name: Run Benchmarks & Profiling
@@ -45,19 +43,30 @@ jobs:
           # Ensure we're in the correct directory
           echo "Current directory: $(pwd)"
           
-          # Run benchmarks (without sudo to avoid directory issues)
-          # Profiling may have reduced functionality without sudo
+          # Run benchmarks
+          # The script is expected to generate files in .benchmarks/ in the current dir
+          chmod +x ./tests/benchmark/scripts/run_benchmark_ci.sh
           ./tests/benchmark/scripts/run_benchmark_ci.sh || true
           
-          # Debug: Show what was created
-          echo "Contents of .benchmarks/:"
-          ls -la .benchmarks/ || echo ".benchmarks not found"
+          # Debug: Verify files exist before uploading
+          echo "Checking for artifacts..."
+          if [ -d ".benchmarks" ]; then
+            echo "✅ .benchmarks folder found. Contents:"
+            ls -la .benchmarks/
+          else
+            echo "❌ .benchmarks folder NOT found!"
+            exit 1
+          fi
 
       - name: Upload Benchmark Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-artifacts
-          path: ${{ github.workspace }}/.benchmarks/
+          # Fix: Use relative path with wildcard to ensure hidden folder contents are caught
+          path: .benchmarks/**
+          # Fix: Explicitly allow hidden files since the folder starts with a dot
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
+          
