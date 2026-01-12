@@ -151,6 +151,7 @@ def compare_implementations(
         results[impl_name] = avg_time * 1000  # Convert to ms
         print(f"  {impl_name}: {avg_time * 1000:.2f}ms (avg of {timed_runs} runs)")
     
+    
     # Compute speedup
     if len(results) >= 2:
         values = list(results.values())
@@ -159,3 +160,78 @@ def compare_implementations(
         print(f"  Speedup: {baseline / fastest:.2f}x")
     
     return results
+
+
+def profile_memory(
+    name: str,
+    func: Callable,
+    *args,
+    **kwargs
+) -> Any:
+    """
+    Profile a function's memory usage using memray.
+    
+    Args:
+        name: Name for the profile
+        func: Function to profile
+        *args: Positional arguments for func
+        **kwargs: Keyword arguments for func
+    
+    Returns:
+        Function result
+    """
+    try:
+        import memray
+    except ImportError:
+        print("Error: memray is not installed. Run `pip install memray`.")
+        return func(*args, **kwargs)
+
+    output_path = get_output_dir() / f"memray_{name}.bin"
+    
+    # Remove existing file
+    if output_path.exists():
+        output_path.unlink()
+        
+    print(f"\n--- Memory Profile: {name} ---")
+    
+    # Run with memray tracker
+    with memray.Tracker(output_path):
+        result = func(*args, **kwargs)
+        
+    print(f"Memory dump saved to: {output_path}")
+    
+    # Analyze and print summary
+    try:
+        from memray import FileReader
+        
+        # Determine peak and total
+        total_allocated = 0
+        peak_memory = 0
+        allocations = 0
+        
+        reader = FileReader(output_path)
+        if hasattr(reader, "metadata"): # Memray 1.3+
+            peak_memory = reader.metadata.peak_memory
+        
+        # Simple aggregation for top allocators
+        # Note: Extensive analysis via API is complex, we stick to summary if possible
+        # Or simply run the CLI command via subprocess for the best formatted output
+        import subprocess
+        print("\n[Memray Summary]")
+        # Run 'memray summary' command and capture output
+        summary_proc = subprocess.run(
+            ["memray", "summary", str(output_path)], 
+            capture_output=True, 
+            text=True
+        )
+        if summary_proc.returncode == 0:
+            print(summary_proc.stdout)
+        else:
+            print("Could not run memray summary CLI.")
+
+        print(f"Detailed Flamegraph: memray flamegraph {output_path}")
+        
+    except Exception as e:
+        print(f"Could not generate summary: {e}")
+        
+    return result
