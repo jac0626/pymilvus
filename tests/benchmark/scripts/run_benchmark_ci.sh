@@ -18,7 +18,7 @@ set -e
 # =============================================================================
 
 # Setup Directories
-RESULTS_DIR="tests/benchmark/results/scientific_suite"
+RESULTS_DIR=".benchmarks"
 PROFILE_DIR=".benchmarks"
 
 mkdir -p "$RESULTS_DIR"
@@ -84,12 +84,26 @@ python3 tests/benchmark/search_perf/scalar/profile_scalar_perf.py --memory || ec
 # -----------------------------------------------------------------------------
 echo ""
 echo "================================================================="
+
+# -----------------------------------------------------------------------------
+# 3. Generate Readable Reports
+# -----------------------------------------------------------------------------
+echo ""
+echo "[3/3] Generating Human-Readable Reports..."
+python3 tests/benchmark/scripts/generate_report.py
+
+# -----------------------------------------------------------------------------
+# Summary
+# -----------------------------------------------------------------------------
+echo ""
+echo "================================================================="
 echo "Benchmark Suite Completed"
 echo "================================================================="
-echo "Results:"
-ls -lh "$RESULTS_DIR"
+echo "Reports generated in .benchmarks/reports/ :"
+echo "  ├── summary/ (Speedup Tables)"
+echo "  ├── cpu/     (Top Functions)"
+echo "  └── memory/  (Allocation Stats)"
 echo ""
-echo "Profiles:"
-ls -lh "$PROFILE_DIR"
+ls -R .benchmarks/reports
 echo ""
 echo "Done."

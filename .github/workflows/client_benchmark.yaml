@@ -44,18 +44,10 @@ jobs:
         run: |
           sudo -E env "PATH=$PATH" ./tests/benchmark/scripts/run_benchmark_ci.sh
 
-      - name: Upload Benchmark Results (JSON)
+      - name: Upload Benchmark Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-results-json
-          path: tests/benchmark/results/scientific_suite/*.json
-          retention-days: 7
-
-      - name: Upload Profile Data (Stats & Bin)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: profile-data
-          path: .benchmarks/*
+          name: benchmark-artifacts
+          path: .benchmarks/
           retention-days: 7
