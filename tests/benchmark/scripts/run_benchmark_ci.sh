@@ -17,12 +17,13 @@ set -e
 #   - .benchmarks/*.bin (Memory profiles)
 # =============================================================================
 
-# Setup Directories
-RESULTS_DIR=".benchmarks"
-PROFILE_DIR=".benchmarks"
+# Setup Directories (use absolute paths to avoid sudo/cwd issues)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+RESULTS_DIR="$PROJECT_ROOT/.benchmarks"
 
 mkdir -p "$RESULTS_DIR"
-mkdir -p "$PROFILE_DIR"
+echo "Output directory: $RESULTS_DIR"
 
 echo "================================================================="
 echo "Starting Benchmark & Profiling Suite"
