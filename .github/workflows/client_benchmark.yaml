@@ -1,0 +1,61 @@
+name: Client Benchmark & Profiling
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'pymilvus/client/**'
+      - 'tests/benchmark/**'
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use Python 3.11 for performance consistency
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          # Install pymilvus + dev dependencies (including py-spy, memray, pytest-benchmark)
+          pip install ".[dev]"
+          
+          # Verify installations
+          pip show pymilvus pytest-benchmark memray py-spy
+
+      - name: Grant permissions to py-spy
+        # py-spy needs elevated permissions to profile
+        run: |
+          # Create a wrapper or run with sudo in the script if needed.
+          # However, in GitHub Actions, the runner user usually has sudo access.
+          # Memray also requires ptrace permissions.
+          echo "Configuring ptrace..."
+          sudo sysctl -w kernel.yama.ptrace_scope=0 || true
+
+      - name: Run Benchmarks & Profiling
+        # Run with sudo to ensure py-spy/memray have permissions
+        run: |
+          sudo -E env "PATH=$PATH" ./tests/benchmark/scripts/run_benchmark_ci.sh
+
+      - name: Upload Benchmark Results (JSON)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-json
+          path: tests/benchmark/results/scientific_suite/*.json
+          retention-days: 7
+
+      - name: Upload Profile Data (Stats & Bin)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-data
+          path: .benchmarks/*
+          retention-days: 7
