@@ -30,6 +30,7 @@ class ScalarComplexity(Enum):
     MEDIUM = "MEDIUM"    # ~200-500 chars for VARCHAR, nested JSON
     LARGE = "LARGE"      # ~1500-2500 chars for VARCHAR
     COMPLEX = "COMPLEX"  # Deep nested JSON structures
+    UNEVEN = "UNEVEN"    # Heterogeneous: varying structure per row (realistic)
 
 
 @dataclass
@@ -81,20 +82,29 @@ def add_scalar_field(
     Args:
         result: The SearchResultData to modify
         name: Field name
-        dtype: One of "INT64", "VARCHAR", "JSON", "ARRAY", "BOOL", "FLOAT", "DOUBLE"
+        dtype: One of "INT8", "INT16", "INT32", "INT64", "FLOAT", "DOUBLE", 
+               "BOOL", "VARCHAR", "JSON", "ARRAY", "GEOMETRY", "TIMESTAMPTZ"
         complexity: For VARCHAR/JSON, controls data size (SMALL/MEDIUM/LARGE/COMPLEX)
     """
     total = result.num_queries * result.top_k
     field = result.fields_data.add()
     field.field_name = name
     
-    if dtype == "INT64":
-        field.type = schema_pb2.DataType.Int64
-        field.scalars.long_data.data.extend([i * 100 for i in range(total)])
+    if dtype == "INT8":
+        field.type = schema_pb2.DataType.Int8
+        field.scalars.int_data.data.extend([i % 128 for i in range(total)])
+        
+    elif dtype == "INT16":
+        field.type = schema_pb2.DataType.Int16
+        field.scalars.int_data.data.extend([i % 32768 for i in range(total)])
         
     elif dtype == "INT32":
         field.type = schema_pb2.DataType.Int32
         field.scalars.int_data.data.extend(list(range(total)))
+        
+    elif dtype == "INT64":
+        field.type = schema_pb2.DataType.Int64
+        field.scalars.long_data.data.extend([i * 100 for i in range(total)])
         
     elif dtype == "FLOAT":
         field.type = schema_pb2.DataType.Float
@@ -114,7 +124,7 @@ def add_scalar_field(
         
     elif dtype == "JSON":
         field.type = schema_pb2.DataType.JSON
-        _fill_json_field(field, total, complexity or ScalarComplexity.SIMPLE if complexity else ScalarComplexity.MEDIUM)
+        _fill_json_field(field, total, complexity or ScalarComplexity.MEDIUM)
         
     elif dtype == "ARRAY":
         field.type = schema_pb2.DataType.Array
@@ -122,6 +132,18 @@ def add_scalar_field(
         for i in range(total):
             array_data = field.scalars.array_data.data.add()
             array_data.long_data.data.extend([100 + i + j for j in range(5)])
+            
+    elif dtype == "GEOMETRY":
+        field.type = schema_pb2.DataType.Geometry
+        # WKT format geometry data
+        for i in range(total):
+            field.scalars.geometry_wkt_data.data.append(f"POINT({i % 180} {i % 90})")
+            
+    elif dtype == "TIMESTAMPTZ":
+        field.type = schema_pb2.DataType.Timestamptz
+        # ISO 8601 timestamp format
+        for i in range(total):
+            field.scalars.string_data.data.append(f"2024-01-{(i % 28) + 1:02d}T12:00:00Z")
     
     result.output_fields.append(name)
 
@@ -184,6 +206,30 @@ def _fill_json_field(
                 "price": 99.99,
                 "stock": 100
             }
+        elif complexity == ScalarComplexity.UNEVEN:
+            # Heterogeneous: each row has different structure/depth
+            variant = i % 5
+            if variant == 0:
+                # Simple flat
+                json_obj = {"id": i, "status": "active"}
+            elif variant == 1:
+                # Nested structure
+                json_obj = {"level1": {"level2": {"level3": {"value": i}}}}
+            elif variant == 2:
+                # Array-heavy
+                json_obj = {"items": list(range(i % 20)), "tags": [f"t{j}" for j in range(i % 10)]}
+            elif variant == 3:
+                # Mixed types
+                json_obj = {
+                    "int_val": i,
+                    "float_val": i * 0.123,
+                    "bool_val": i % 2 == 0,
+                    "str_val": f"string_{i}",
+                    "null_val": None
+                }
+            else:
+                # Wide object (many keys)
+                json_obj = {f"key_{j}": j * i for j in range(15)}
         else:  # LARGE or COMPLEX
             json_obj = {
                 "user": {
@@ -217,35 +263,56 @@ def add_vector_field(
     Args:
         result: The SearchResultData to modify
         name: Field name
-        dtype: One of "FLOAT_VECTOR", "FLOAT16_VECTOR", "BFLOAT16_VECTOR", "BINARY_VECTOR", "INT8_VECTOR"
-        dim: Vector dimension (for BINARY_VECTOR, this is in bits)
+        dtype: One of "FLOAT_VECTOR", "FLOAT16_VECTOR", "BFLOAT16_VECTOR", 
+               "BINARY_VECTOR", "INT8_VECTOR", "SPARSE_FLOAT_VECTOR"
+        dim: Vector dimension (for BINARY_VECTOR, this is in bits; ignored for SPARSE)
     """
     total = result.num_queries * result.top_k
     field = result.fields_data.add()
     field.field_name = name
-    field.vectors.dim = dim
     
     if dtype == "FLOAT_VECTOR":
         field.type = schema_pb2.DataType.FloatVector
+        field.vectors.dim = dim
         dummy_data = [0.123] * (total * dim)
         field.vectors.float_vector.data.extend(dummy_data)
         
     elif dtype == "FLOAT16_VECTOR":
         field.type = schema_pb2.DataType.Float16Vector
+        field.vectors.dim = dim
         field.vectors.float16_vector = bytes([i % 256 for i in range(total * dim * 2)])
         
     elif dtype == "BFLOAT16_VECTOR":
         field.type = schema_pb2.DataType.BFloat16Vector
+        field.vectors.dim = dim
         field.vectors.bfloat16_vector = bytes([i % 256 for i in range(total * dim * 2)])
         
     elif dtype == "BINARY_VECTOR":
         field.type = schema_pb2.DataType.BinaryVector
+        field.vectors.dim = dim
         bytes_per_vec = dim // 8
         field.vectors.binary_vector = bytes([i % 256 for i in range(total * bytes_per_vec)])
         
     elif dtype == "INT8_VECTOR":
         field.type = schema_pb2.DataType.Int8Vector
+        field.vectors.dim = dim
         field.vectors.int8_vector = bytes([i % 256 for i in range(total * dim)])
+        
+    elif dtype == "SPARSE_FLOAT_VECTOR":
+        import struct
+        field.type = schema_pb2.DataType.SparseFloatVector
+        # Sparse vectors: each row has variable number of (index, value) pairs
+        # Format: 8 bytes per element (4 bytes index + 4 bytes float value)
+        sparse_data = field.vectors.sparse_float_vector
+        for i in range(total):
+            # Create sparse vector with ~10 non-zero elements
+            nnz = 10
+            row_bytes = b''
+            for j in range(nnz):
+                idx = i * 100 + j * 10  # Sparse indices
+                val = 0.1 * (j + 1)
+                row_bytes += struct.pack('I', idx) + struct.pack('f', val)
+            sparse_data.contents.append(row_bytes)
     
     result.output_fields.append(name)
 

@@ -1,144 +1,230 @@
 #!/usr/bin/env python3
 """
-Scalar Field Performance Benchmark (Scientific Matrix)
+Scalar Field Performance Benchmark
 
-Implements the Variable Control Matrix:
-1. Baseline: Protocol Comparison (Fixed NQ=10, TopK=100)
-2. Batch Scalability: Throughput vs NQ (Fixed TopK=100, INT64)
-3. Result Scalability: Deserialization vs TopK (Fixed NQ=10, INT64)
-4. Payload Complexity: Parsing vs Data Size
+Measures actual proto → user object conversion time with real field access.
+All tests are parametrized with four access modes for comprehensive coverage.
+
+Access Modes:
+1. full_iteration: Iterate all hits, access field each time
+2. slice: res[q][0:100] slice access for each query
+3. first_element: res[0][0][field] single element access
+4. batch_column: get_column() API (ColumnarSearchResult only)
 """
 
 import pytest
 from pymilvus.client.columnar_search_result import ColumnarSearchResult
 from pymilvus.client.search_result import SearchResult
-from tests.benchmark.kernels import build_search_result, iterate_result
+from tests.benchmark.kernels import build_search_result, iterate_result, slice_access, get_column_batch
+
 
 # =============================================================================
-# 1. Baseline Performance (Protocol Comparison)
-# Goal: Compare overhead of Columnar vs Legacy for different types
-# Fixed: NQ=10, TopK=100
+# Configuration
 # =============================================================================
-
-BASELINE_TYPES = [
-    ("INT64", "int64_field", None),
-    ("ARRAY", "array_field", None),
-    ("VARCHAR", "varchar_field", "MEDIUM"),
-    ("JSON", "json_field", "MEDIUM"),
-]
-
-@pytest.mark.parametrize("field_type, field_name, complexity", BASELINE_TYPES)
-def test_scalar_baseline(benchmark, field_type, field_name, complexity):
-    """Compare protocols under standard load (NQ=10, TopK=100)."""
-    nq, topk = 10, 100
-    res_data = build_search_result(nq, topk, scalar_fields=[(field_name, field_type, complexity)])
-    
-    def run_benchmark():
-        # Test Columnar (Primary Target)
-        # We can also test Legacy if needed, but Columnar is the optimization target
-        # For verifying optimization, we should probably run both or just Columnar?
-        # The plan implies comparing protocols. We'll run Columnar here.
-        # To strictly compare, we might need separate tests or parametrize "mode".
-        # Let's parametrize mode inside.
-        ColumnarSearchResult(res_data)
-        
-    # We want to separate Columnar vs Legacy in reporting.
-    # Let's use the explicit test structure from before but simplified.
-    pass 
-
-# Redefining structure to match pytest-benchmark style better: 
-# One test function per scenario, parameterized by mode.
 
 MODES = ["Legacy", "Columnar"]
+ACCESS_MODES = ["full_iteration", "slice", "first_element", "batch_column"]
 
-@pytest.mark.parametrize("mode", MODES)
-@pytest.mark.parametrize("field_type, field_name, complexity", BASELINE_TYPES)
-def test_baseline_protocol(benchmark, mode, field_type, field_name, complexity):
-    """Baseline: Compare Legacy vs Columnar for different types."""
-    nq, topk = 10, 100
-    res_data = build_search_result(nq, topk, scalar_fields=[(field_name, field_type, complexity)])
-    
-    def run():
-        if mode == "Legacy":
-            SearchResult(res_data)
-        else:
-            ColumnarSearchResult(res_data)
-    benchmark(run)
-
-
-# =============================================================================
-# 2. Batch Scalability (NQ Growth)
-# Goal: Measure throughput linearity
-# Fixed: TopK=100, Type=INT64
-# =============================================================================
-
-NQ_SCALES = [1, 10, 100, 1000, 10000]
-
-@pytest.mark.parametrize("mode", MODES)
-@pytest.mark.parametrize("nq", NQ_SCALES)
-def test_batch_scalability(benchmark, mode, nq):
-    """Batch Scalability: Throughput vs NQ."""
-    topk = 100
-    res_data = build_search_result(nq, topk, scalar_fields=[("id", "INT64", None)])
-    
-    def run():
-        if mode == "Legacy":
-            SearchResult(res_data)
-        else:
-            ColumnarSearchResult(res_data)
-    benchmark(run)
-
-
-# =============================================================================
-# 3. Result Scalability (TopK Growth)
-# Goal: Measure deserialization cost
-# Fixed: NQ=10, Type=INT64
-# =============================================================================
-
-TOPK_SCALES = [10, 100, 1000, 10000]
-
-@pytest.mark.parametrize("mode", MODES)
-@pytest.mark.parametrize("topk", TOPK_SCALES)
-def test_result_scalability(benchmark, mode, topk):
-    """Result Scalability: Cost vs TopK."""
-    nq = 10
-    res_data = build_search_result(nq, topk, scalar_fields=[("id", "INT64", None)])
-    
-    def run():
-        if mode == "Legacy":
-            SearchResult(res_data)
-        else:
-            ColumnarSearchResult(res_data)
-    benchmark(run)
-
-
-# =============================================================================
-# 4. Payload Complexity (Data Size)
-# Goal: Measure parsing overhead
-# Fixed: NQ=10, TopK=100
-# =============================================================================
-
-COMPLEXITY_CASES = [
-    # VARCHAR
-    ("VARCHAR", "varchar_field", "SMALL"),
+# Scalar field types to test (complete coverage)
+SCALAR_TYPES = [
+    # Numeric types
+    ("BOOL", "bool_field", None),
+    ("INT8", "int8_field", None),
+    ("INT16", "int16_field", None),
+    ("INT32", "int32_field", None),
+    ("INT64", "int64_field", None),
+    ("FLOAT", "float_field", None),
+    ("DOUBLE", "double_field", None),
+    # String types
     ("VARCHAR", "varchar_field", "MEDIUM"),
-    ("VARCHAR", "varchar_field", "LARGE"),
-    # JSON
-    ("JSON", "json_field", "SMALL"),
+    # Complex types
     ("JSON", "json_field", "MEDIUM"),
-    ("JSON", "json_field", "COMPLEX"),
+    ("ARRAY", "array_field", None),
+    # Special types
+    ("GEOMETRY", "geometry_field", None),
+    ("TIMESTAMPTZ", "timestamptz_field", None),
 ]
 
+# NQ scalability (fixed TopK=1 to prevent OOM for large NQ)
+NQ_SCALES = [
+    (1, 1, "nq_1"),
+    (10, 1, "nq_10"),
+    (100, 1, "nq_100"),
+    (1000, 1, "nq_1000"),
+    (10000, 1, "nq_10000"),
+]
+
+# TopK scalability (fixed NQ=1 to limit memory)
+TOPK_SCALES = [
+    (1, 1, "topk_1"),
+    (1, 10, "topk_10"),
+    (1, 100, "topk_100"),
+    (1, 1000, "topk_1000"),
+    (1, 10000, "topk_10000"),
+]
+
+# Payload complexity cases
+COMPLEXITY_CASES = [
+    ("VARCHAR", "text", "SMALL"),
+    ("VARCHAR", "text", "MEDIUM"),
+    ("VARCHAR", "text", "LARGE"),
+    ("JSON", "meta", "SMALL"),
+    ("JSON", "meta", "MEDIUM"),
+    ("JSON", "meta", "COMPLEX"),
+    ("JSON", "meta", "UNEVEN"),
+]
+
+
+# =============================================================================
+# Access Mode Executor (Core Logic)
+# =============================================================================
+
+def execute_access(result, field_name: str, access_mode: str, nq: int, topk: int):
+    """
+    Execute the specified access mode on the result.
+    
+    All modes ensure actual field data is accessed (cold start).
+    """
+    if access_mode == "full_iteration":
+        # Iterate all hits and access field
+        return iterate_result(result, field_name)
+    
+    elif access_mode == "slice":
+        # Slice first 100 hits (or topk if smaller) from each query
+        slice_size = min(100, topk)
+        total = 0
+        for q_idx in range(nq):
+            sliced = slice_access(result, q_idx, 0, slice_size, field_name)
+            total += len(sliced)
+        return total
+    
+    elif access_mode == "first_element":
+        # Access first element 100 times (simulates common usage)
+        values = []
+        for _ in range(100):
+            values.append(result[0][0][field_name])
+        return len(values)
+    
+    elif access_mode == "batch_column":
+        # ColumnarSearchResult batch column access
+        if hasattr(result, '__iter__') and hasattr(list(result)[0] if nq > 0 else None, 'get_column'):
+            # Recreate result since we consumed it checking
+            pass
+        columns = get_column_batch(result, field_name)
+        return sum(len(c) for c in columns)
+    
+    return 0
+
+
+def run_benchmark(res_data, field_name: str, mode: str, access_mode: str, nq: int, topk: int):
+    """
+    Run benchmark with specified protocol mode and access mode.
+    
+    Returns the result count for assertion.
+    """
+    # Skip batch_column for Legacy mode (not supported)
+    if access_mode == "batch_column" and mode == "Legacy":
+        pytest.skip("batch_column only supported for ColumnarSearchResult")
+    
+    # Cold start: create result object each time
+    if mode == "Legacy":
+        result = SearchResult(res_data)
+    else:
+        result = ColumnarSearchResult(res_data)
+    
+    return execute_access(result, field_name, access_mode, nq, topk)
+
+
+# =============================================================================
+# 1. Baseline: Field Type Comparison
+# =============================================================================
+
 @pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("access_mode", ACCESS_MODES)
+@pytest.mark.parametrize("field_type, field_name, complexity", SCALAR_TYPES)
+def test_scalar_type_baseline(benchmark, mode, access_mode, field_type, field_name, complexity):
+    """
+    Baseline: Compare different scalar types across all access modes.
+    
+    Fixed: NQ=10, TopK=1000
+    """
+    nq, topk = 10, 1000
+    res_data = build_search_result(nq, topk, scalar_fields=[(field_name, field_type, complexity)])
+    
+    def run():
+        return run_benchmark(res_data, field_name, mode, access_mode, nq, topk)
+    
+    count = benchmark(run)
+    # Verify access happened
+    if access_mode == "full_iteration":
+        assert count == nq * topk
+    elif access_mode == "slice":
+        assert count == nq * min(100, topk)
+    elif access_mode == "first_element":
+        assert count == 100
+    elif access_mode == "batch_column":
+        assert count == nq * topk
+
+
+# =============================================================================
+# 2. NQ Scalability (Fixed TopK=100)
+# =============================================================================
+
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("access_mode", ACCESS_MODES)
+@pytest.mark.parametrize("nq, topk, label", NQ_SCALES)
+def test_scalar_nq_scalability(benchmark, mode, access_mode, nq, topk, label):
+    """
+    NQ Scalability: Measure how NQ growth affects performance.
+    
+    Fixed: TopK=100, INT64 field type
+    """
+    res_data = build_search_result(nq, topk, scalar_fields=[("id", "INT64", None)])
+    
+    def run():
+        return run_benchmark(res_data, "id", mode, access_mode, nq, topk)
+    
+    benchmark(run)
+
+
+# =============================================================================
+# 3. TopK Scalability (Fixed NQ=1)
+# =============================================================================
+
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("access_mode", ACCESS_MODES)
+@pytest.mark.parametrize("nq, topk, label", TOPK_SCALES)
+def test_scalar_topk_scalability(benchmark, mode, access_mode, nq, topk, label):
+    """
+    TopK Scalability: Measure how TopK growth affects performance.
+    
+    Fixed: NQ=1, INT64 field type
+    """
+    res_data = build_search_result(nq, topk, scalar_fields=[("id", "INT64", None)])
+    
+    def run():
+        return run_benchmark(res_data, "id", mode, access_mode, nq, topk)
+    
+    benchmark(run)
+
+
+# =============================================================================
+# 4. Payload Complexity: Data Size Impact
+# =============================================================================
+
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("access_mode", ACCESS_MODES)
 @pytest.mark.parametrize("field_type, field_name, complexity", COMPLEXITY_CASES)
-def test_payload_complexity(benchmark, mode, field_type, field_name, complexity):
-    """Payload Complexity: Impact of data size/structure."""
+def test_scalar_payload_complexity(benchmark, mode, access_mode, field_type, field_name, complexity):
+    """
+    Payload Complexity: Impact of VARCHAR length and JSON structure.
+    
+    Fixed: NQ=10, TopK=100
+    """
     nq, topk = 10, 100
     res_data = build_search_result(nq, topk, scalar_fields=[(field_name, field_type, complexity)])
     
     def run():
-        if mode == "Legacy":
-            SearchResult(res_data)
-        else:
-            ColumnarSearchResult(res_data)
+        return run_benchmark(res_data, field_name, mode, access_mode, nq, topk)
+    
     benchmark(run)
