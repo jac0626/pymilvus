@@ -144,6 +144,42 @@ def add_scalar_field(
         # ISO 8601 timestamp format
         for i in range(total):
             field.scalars.string_data.data.append(f"2024-01-{(i % 28) + 1:02d}T12:00:00Z")
+            
+    elif dtype == "_ARRAY_OF_STRUCT":
+        # Composite type: array of struct (used internally for STRUCT fields)
+        field.type = schema_pb2.DataType.ArrayOfStruct
+        # Create struct_arrays with sub-fields
+        struct_arrays = field.struct_arrays
+        # Add an INT64 sub-field
+        int_field = struct_arrays.fields.add()
+        int_field.field_name = "int_col"
+        int_field.type = schema_pb2.DataType.Array
+        int_field.scalars.array_data.element_type = schema_pb2.DataType.Int64
+        # Add a VARCHAR sub-field
+        str_field = struct_arrays.fields.add()
+        str_field.field_name = "str_col"
+        str_field.type = schema_pb2.DataType.Array
+        str_field.scalars.array_data.element_type = schema_pb2.DataType.VarChar
+        # Fill data for each row
+        for i in range(total):
+            # Each row has an array of structs, here we simulate 3 structs per row
+            int_array = int_field.scalars.array_data.data.add()
+            int_array.long_data.data.extend([i * 10 + j for j in range(3)])
+            str_array = str_field.scalars.array_data.data.add()
+            str_array.string_data.data.extend([f"item_{i}_{j}" for j in range(3)])
+            
+    elif dtype == "_ARRAY_OF_VECTOR":
+        # Composite type: array of vectors (used internally for STRUCT with vector fields)
+        field.type = schema_pb2.DataType.ArrayOfVector
+        vector_array = field.vectors.vector_array
+        # Each row contains multiple vectors
+        for i in range(total):
+            vec_data = vector_array.data.add()
+            vec_data.dim = 4  # Small dimension for testing
+            # 3 vectors per row, each with 4 floats
+            for j in range(3):
+                for k in range(4):
+                    vec_data.float_vector.data.append(float(i * 100 + j * 10 + k))
     
     result.output_fields.append(name)
 

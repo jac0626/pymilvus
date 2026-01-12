@@ -43,6 +43,9 @@ SCALAR_TYPES = [
     # Special types
     ("GEOMETRY", "geometry_field", None),
     ("TIMESTAMPTZ", "timestamptz_field", None),
+    # Composite types (internal use for STRUCT)
+    ("_ARRAY_OF_STRUCT", "struct_array_field", None),
+    ("_ARRAY_OF_VECTOR", "vector_array_field", None),
 ]
 
 # NQ scalability (fixed TopK=1 to prevent OOM for large NQ)
