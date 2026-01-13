@@ -77,7 +77,51 @@ echo ">> Running Scalar Profiling (CPU)..."
 python3 tests/benchmark/search_perf/scalar/profile_scalar_perf.py || echo "⚠️ scalar CPU profile failed"
 
 echo ">> Running Scalar Profiling (Memory)..."
+
 python3 tests/benchmark/search_perf/scalar/profile_scalar_perf.py --memory || echo "⚠️ scalar Memory profile failed"
+
+
+# -----------------------------------------------------------------------------
+# 3. Validation & Advanced Scenarios
+# -----------------------------------------------------------------------------
+echo ""
+echo "[3/3] Running Validation & Advanced Scenarios..."
+
+echo ">> Running Arrow IPC Validation Benchmark (E.7.4)..."
+PYTHONPATH=. pytest tests/benchmark/search_perf/test_arrow_ipc_bench.py \
+    --benchmark-only \
+    --benchmark-json="$RESULTS_DIR/arrow_ipc_benchmark.json" \
+    -q || echo "⚠️ Arrow IPC benchmark failed!"
+
+echo ">> Running Columnar Memory Profiling (E.11)..."
+# Create output dir for memray
+mkdir -p "$RESULTS_DIR/memory_profiles"
+
+# Legacy Mode
+echo "   - Profiling Legacy Mode..."
+python3 -m memray run -o "$RESULTS_DIR/memory_profiles/legacy.bin" -f \
+    tests/benchmark/search_perf/profile_columnar_memory.py legacy > /dev/null
+
+# Columnar Init
+echo "   - Profiling Columnar Init..."
+python3 -m memray run -o "$RESULTS_DIR/memory_profiles/columnar_init.bin" -f \
+    tests/benchmark/search_perf/profile_columnar_memory.py columnar_init > /dev/null
+
+# Columnar Partial Access
+echo "   - Profiling Columnar Access..."
+python3 -m memray run -o "$RESULTS_DIR/memory_profiles/columnar_access.bin" -f \
+    tests/benchmark/search_perf/profile_columnar_memory.py columnar_access > /dev/null
+
+# Columnar Full Iteration
+echo "   - Profiling Columnar Iteration..."
+python3 -m memray run -o "$RESULTS_DIR/memory_profiles/columnar_iter.bin" -f \
+    tests/benchmark/search_perf/profile_columnar_memory.py columnar_iter > /dev/null
+
+echo ">> Generating Memory Summaries..."
+# Generate simple text stats for quick inspection in logs
+python3 -m memray stats "$RESULTS_DIR/memory_profiles/legacy.bin" | head -n 20
+echo "---"
+python3 -m memray stats "$RESULTS_DIR/memory_profiles/columnar_init.bin" | head -n 20
 
 
 # -----------------------------------------------------------------------------
@@ -90,7 +134,7 @@ echo "================================================================="
 # 3. Generate Readable Reports
 # -----------------------------------------------------------------------------
 echo ""
-echo "[3/3] Generating Human-Readable Reports..."
+echo "[4/4] Generating Human-Readable Reports..."
 python3 tests/benchmark/scripts/generate_report.py
 
 # -----------------------------------------------------------------------------
