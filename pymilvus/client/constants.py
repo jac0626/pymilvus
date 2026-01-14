@@ -34,3 +34,13 @@ RANKER_TYPE_WEIGHTED = "weighted"
 GUARANTEE_TIMESTAMP = "guarantee_timestamp"
 
 IS_EMBEDDING_LIST = "is_embedding_list"
+
+COMMON_TYPE_PARAMS = (
+    "dim",
+    "max_length",
+    "max_capacity",
+    "enable_match",
+    "enable_analyzer",
+    "analyzer_params",
+    "multi_analyzer_params",
+)
