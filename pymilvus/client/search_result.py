@@ -400,177 +400,6 @@ class SearchResult(list):
             nq_thres += topk
         return data
 
-    def _get_fields_by_range(
-        self, start: int, end: int, all_fields_data: List[schema_pb2.FieldData]
-    ) -> Dict[str, Tuple[List[Any], schema_pb2.FieldData]]:
-        field2data: Dict[str, Tuple[List[Any], schema_pb2.FieldData]] = {}
-
-        for field in all_fields_data:
-            name, scalars, dtype = field.field_name, field.scalars, field.type
-            field_meta = schema_pb2.FieldData(
-                type=dtype,
-                field_name=name,
-                field_id=field.field_id,
-                is_dynamic=field.is_dynamic,
-            )
-            if dtype == DataType.BOOL:
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.bool_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype in (DataType.INT8, DataType.INT16, DataType.INT32):
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.int_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.INT64:
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.long_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.FLOAT:
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.float_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.DOUBLE:
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.double_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.VARCHAR:
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.string_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.GEOMETRY:
-                field2data[name] = (
-                    apply_valid_data(
-                        scalars.geometry_wkt_data.data[start:end], field.valid_data, start, end
-                    ),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.JSON:
-                res = apply_valid_data(
-                    scalars.json_data.data[start:end], field.valid_data, start, end
-                )
-                json_dict_list = []
-                for item in res:
-                    if item is not None:
-                        try:
-                            json_dict_list.append(orjson.loads(item))
-                        except Exception as e:
-                            logger.error(
-                                f"SearchResult::_get_fields_by_range::Failed to load JSON item: {e}, original item: {item}"
-                            )
-                            raise
-                    else:
-                        json_dict_list.append(item)
-                field2data[name] = json_dict_list, field_meta
-                continue
-
-            if dtype == DataType.ARRAY:
-                res = apply_valid_data(
-                    scalars.array_data.data[start:end], field.valid_data, start, end
-                )
-                field2data[name] = (
-                    extract_array_row_data(res, scalars.array_data.element_type),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType._ARRAY_OF_STRUCT:
-                struct_array_data = []
-
-                if hasattr(field, "struct_arrays") and field.struct_arrays:
-                    for row_idx in range(start, end):
-                        struct_array_data.append(
-                            entity_helper.extract_struct_array_from_column_data(
-                                field.struct_arrays, row_idx
-                            )
-                        )
-
-                field2data[name] = (struct_array_data, field_meta)
-                continue
-
-            # vectors
-            dim, vectors = field.vectors.dim, field.vectors
-            field_meta.vectors.dim = dim
-            if dtype == DataType.FLOAT_VECTOR:
-                if start == 0 and (end - start) * dim >= len(vectors.float_vector.data):
-                    # If the range equals to the length of vectors.float_vector.data, direct return
-                    # it to avoid a copy. This logic improves performance by 25% for the case
-                    # retrival 1536 dim embeddings with topk=16384.
-                    field2data[name] = vectors.float_vector.data, field_meta
-                else:
-                    field2data[name] = (
-                        vectors.float_vector.data[start * dim : end * dim],
-                        field_meta,
-                    )
-                continue
-
-            if dtype == DataType.BINARY_VECTOR:
-                field2data[name] = (
-                    vectors.binary_vector[start * (dim // 8) : end * (dim // 8)],
-                    field_meta,
-                )
-                continue
-            # TODO(SPARSE): do we want to allow the user to specify the return format?
-            if dtype == DataType.SPARSE_FLOAT_VECTOR:
-                field2data[name] = (
-                    entity_helper.sparse_proto_to_rows(vectors.sparse_float_vector, start, end),
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.BFLOAT16_VECTOR:
-                field2data[name] = (
-                    vectors.bfloat16_vector[start * (dim * 2) : end * (dim * 2)],
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.FLOAT16_VECTOR:
-                field2data[name] = (
-                    vectors.float16_vector[start * (dim * 2) : end * (dim * 2)],
-                    field_meta,
-                )
-                continue
-
-            if dtype == DataType.INT8_VECTOR:
-                field2data[name] = (
-                    vectors.int8_vector[start * dim : end * dim],
-                    field_meta,
-                )
-                continue
-        return field2data
-
     def get_session_ts(self):
         """Iterator related inner method"""
         # TODO(Goose): change it into properties
@@ -583,40 +412,17 @@ class SearchResult(list):
 
 
 def get_field_data(field_data: FieldData):
-    if field_data.type == DataType.BOOL:
-        return field_data.scalars.bool_data.data
-    if field_data.type in {DataType.INT8, DataType.INT16, DataType.INT32}:
-        return field_data.scalars.int_data.data
-    if field_data.type == DataType.INT64:
-        return field_data.scalars.long_data.data
-    if field_data.type == DataType.FLOAT:
-        return field_data.scalars.float_data.data
-    if field_data.type == DataType.DOUBLE:
-        return field_data.scalars.double_data.data
-    if field_data.type in (DataType.VARCHAR, DataType.TIMESTAMPTZ):
-        return field_data.scalars.string_data.data
-    if field_data.type == DataType.GEOMETRY:
-        return field_data.scalars.geometry_wkt_data.data
-    if field_data.type == DataType.JSON:
-        return field_data.scalars.json_data.data
-    if field_data.type == DataType.ARRAY:
-        return field_data.scalars.array_data.data
-    if field_data.type == DataType.FLOAT_VECTOR:
-        return field_data.vectors.float_vector.data
-    if field_data.type == DataType.BINARY_VECTOR:
-        return field_data.vectors.binary_vector
-    if field_data.type == DataType.BFLOAT16_VECTOR:
-        return field_data.vectors.bfloat16_vector
-    if field_data.type == DataType.FLOAT16_VECTOR:
-        return field_data.vectors.float16_vector
-    if field_data.type == DataType.INT8_VECTOR:
-        return field_data.vectors.int8_vector
-    if field_data.type == DataType.SPARSE_FLOAT_VECTOR:
-        return field_data.vectors.sparse_float_vector
-    if field_data.type == DataType._ARRAY_OF_STRUCT:
-        return field_data.struct_arrays
-    if field_data.type == DataType._ARRAY_OF_VECTOR:
-        return field_data.vectors.vector_array
+    """Get raw data from field_data using TypeHandler pattern.
+
+    Returns the underlying data container from the protobuf FieldData structure.
+    """
+    from pymilvus.client.handlers import get_handler
+    from pymilvus.client.handlers.registry import has_handler
+
+    if has_handler(field_data.type):
+        handler = get_handler(field_data.type)
+        return handler.get_raw_data(field_data)
+
     msg = f"Unsupported field type: {field_data.type}"
     raise MilvusException(msg)
 
