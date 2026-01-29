@@ -1,0 +1,26 @@
+name: Delete Backport Branch
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete-branch:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Delete backport branch
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'backport') &&
+          startsWith(github.event.pull_request.head.ref, 'backport-') &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git push origin --delete ${{ github.event.pull_request.head.ref }} || true
