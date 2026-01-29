@@ -19,6 +19,7 @@ example:
 example_index:
 	PYTHONPATH=`pwd` python examples/example_index.py
 
+
 package:
 	python3 -m build --sdist --wheel --outdir dist/ .
 
